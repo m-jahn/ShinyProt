@@ -10,10 +10,8 @@ library(lattice)
 library(latticeExtra)
 library(tidyr)
 library(plyr)
-library(devtools)
 library(shinyTree)
 library(shinythemes)
-library(shinydashboard)
 library(dendextend)
 source("custom.themes.R")
 
@@ -145,8 +143,13 @@ ui <- shinyUI(fluidPage(
         column(width=6, 
           h4("INFO & HELP"),
           wellPanel(
-            h4("DATA SOURCE AND CITATION"),
-            p("The data used in this app was collected for a study by Jahn et al., which is currently under review"),
+            h4("HOW TO"),
+            p("Just use the tree to select subsets of genes and pathways.
+              Not every button works as input for every plot, just play around."),
+            h4("DATA AND REFERENCES"),
+            p("Proteomics data obtained by labelfree quantification of LC-MS-MS measurements.
+              Model organism: Synechocystis PCC6803.
+              Data used in this app was collected for a study by Jahn et al., which is currently under review"),
             #a(href = '', target="_blank", 'Jahn et al., Cell Reports, 2018, under review'),
             p("The design of this app was largely inspired by", 
               a(href="http://neuroexpresso.org", target= '_blank', 'neuroexpressor.org')
@@ -157,7 +160,7 @@ ui <- shinyUI(fluidPage(
             #
             h4("CONTACT"),
             p("For questions or reporting issues, contact 
-              Michael Jahn, Science For Life Lab - Royal Technical University (KTH), Stockholm, SE"), 
+              Michael Jahn, Science For Life Lab - Royal Technical University (KTH), Stockholm"), 
             p(
               a(href="mailto:michael.jahn@scilifelab.se", target= '_blank', 'email: Michael Jahn')
             )
