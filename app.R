@@ -19,7 +19,7 @@ source("custom.themes.R")
 
 # define some global variables like
 # directory of raw data
-datadir <- "~/Documents/Code/Shiny/ShinyProt"
+datadir <- "data"
 
 # make list of database files in data folder
 datalistfiles <- list.files(datadir, pattern="\\.csv$", full.names=TRUE)
@@ -28,11 +28,13 @@ datalistfiles <- list.files(datadir, pattern="\\.csv$", full.names=TRUE)
 # SHINY UI
 # ***********************************************
 # Define UI for application that draws a histogram
+
 ui <- shinyUI(fluidPage(
   
   # Use one of different shiny themes
-  theme=shinytheme("lumen"),
-   
+  theme=shinytheme("cosmo"),
+  #shinythemes::themeSelector(),
+  
   # Application title
   titlePanel("ShinyProt - interactive gene expression analysis"),
   
@@ -45,7 +47,7 @@ ui <- shinyUI(fluidPage(
       # SELECT DATA
       selectInput("UserDataChoice",
         "Choose data:", datalistfiles, 
-        selected=tail(datalistfiles,3)),
+        selected=datalistfiles[1]),
       
       # SELECT PLOT OPTIONS
       hr(),
@@ -128,10 +130,38 @@ ui <- shinyUI(fluidPage(
         )
       ),
       
-      # SELECT GENES OR PROTEINS FROM TREE
+      
       hr(),
-      h4("PROTEIN SELECTION"),
-      shinyTree("tree", search=TRUE, checkbox=TRUE)
+      fluidRow(
+        
+        # SELECT GENES OR PROTEINS FROM TREE
+        column(width=6, 
+          h4("PROTEIN SELECTION"),
+          shinyTree("tree", search=TRUE, checkbox=TRUE)
+        ),
+        column(width=6, 
+          h4("INFO & HELP"),
+          # INFO BOX
+          wellPanel(
+            h4("DATA SOURCE AND CITATION"),
+            p("The data used in this app was collected for a study by Jahn et al., which is currently under review"),
+            #a(href = '', target="_blank", 'Jahn et al., Cell Reports, 2018, under review'),
+            p("The design of this app was largely inspired by", 
+              a(href="http://neuroexpresso.org", target= '_blank', 'neuroexpressor.org')
+            ),
+            p("The source code for this R shiny app is available under", 
+              a(href="https://github.com/m-jahn", target= '_blank', 'github/m-jahn')
+            ),
+            #
+            h4("CONTACT"),
+            p("If you have questions or problems, contact 
+              Michael Jahn, Science For Life Lab - Royal Technical University (KTH), Stockholm, SE"), 
+            p(
+              a(href="mailto:michael.jahn@scilifelab.se", target= '_blank', 'email: Michael Jahn')
+            )
+          )
+        )
+      )
     ),
     
     
@@ -139,8 +169,11 @@ ui <- shinyUI(fluidPage(
     # Each tab has individual Download buttons
     column(width=7,
       tabsetPanel(
-        tabPanel("DOT PLOT", uiOutput("plot.ui"),
+        tabPanel("DOT PLOT", uiOutput("dotplot.ui"),
           downloadButton("UserDownloadPlot", "Download svg")
+        ),
+        tabPanel("HEAT MAP", uiOutput("heatmap.ui"),
+          downloadButton("UserDownloadHeat", "Download svg")
         ),
         tabPanel("TABLE", uiOutput("table.ui"),
           downloadButton("UserDownloadTable", "Download table")
@@ -200,8 +233,11 @@ server <- shinyServer(function(input, output) {
   #
   # To control size of the plots, we need to wrap plots
   # into additional renderUI function that can take height argument
-  output$plot.ui <- renderUI({
-    plotOutput("plot", height=input$UserPrintHeight, width=input$UserPrintWidth)
+  output$dotplot.ui <- renderUI({
+    plotOutput("dotplot", height=input$UserPrintHeight, width=input$UserPrintWidth)
+  })
+  output$heatmap.ui <- renderUI({
+    plotOutput("heatmap", height=input$UserPrintHeight, width=input$UserPrintWidth)
   })
   output$table.ui <- renderUI({
     tableOutput("table")
@@ -210,7 +246,7 @@ server <- shinyServer(function(input, output) {
   
   # PLOT DATA USING XYPLOT FROM LATTICE
   # that is made for multifactorial data
-  output$plot <- renderPlot(res=120, {
+  output$dotplot <- renderPlot(res=120, {
     
     # filter data by user choices
     filtGenes <- get_selected(input$tree, format="names") %>% 
@@ -266,16 +302,19 @@ server <- shinyServer(function(input, output) {
       xlab=input$UserXVariable,
       ylab=input$UserYVariable,
       panel=function(x, y, ...) {
-       panel.grid(h=-1, v=-1, col=grey(0.9))
-       panel.xyplot(x, y, ...)
+        if (input$UserTheme=="ggplot2") 
+          panel.grid(h=-1, v=-1, col="white")
+        else 
+          panel.grid(h=-1, v=-1, col=grey(0.9))
+        panel.xyplot(x, y, ...)
       }
     )
     
     # print plot to output panel
     print(ExpPlot)
      
-    output$UserDownloadOD <- downloadHandler(
-      filename="ODplot.svg",
+    output$UserDownloadPlot <- downloadHandler(
+      filename="dotplot.svg",
       content = function(file) {
         svg(file, width=input$UserPrintWidth, height=input$UserPrintHeight)
         print(ExpPlot)
@@ -285,7 +324,66 @@ server <- shinyServer(function(input, output) {
     )
     
   })
-
+  
+  # PLOT DATA AS HEATMAP WITH LEVELPLOT
+  # some options for dotplot do not apply here
+  output$heatmap <- renderPlot(res=120, {
+    
+    # filter data by user choices
+    filtGenes <- get_selected(input$tree, format="names") %>% 
+      unlist %>%
+      subset(., grepl("3*[a-z]4*[0-9]", .))
+    
+    
+    # set log or lin flag and scale data on the fly
+    logfun <- function(x) {
+      if (input$UserLogY=="linear") x
+      else if(input$UserLogY=="log 2") log2(x)
+      else if(input$UserLogY=="log 10") log10(x)
+      else log(x)
+    }
+    
+    
+    # select theme
+     if (input$UserTheme=="ggplot1") theme <- ggplot2like()
+     else if (input$UserTheme=="ggplot2") theme <- custom.ggplot
+     else if (input$UserTheme=="lattice grey") theme <- custom.lattice
+     else if (input$UserTheme=="lattice blue") theme <- theEconomist.theme()
+    
+    
+    # Actual plot of gene expression is drawn
+    heat <- levelplot(logfun(get(input$UserYVariable)) ~ 
+        as.factor(get(input$UserXVariable)) * 
+        as.factor(protein),
+      #  factor(get(input$UserCondVariable)), 
+      subset(data(), protein %in% filtGenes),
+      auto.key=FALSE,
+      par.settings=theme, 
+      #layout={
+      #  if (input$UserPanelLayout=="manual") {
+      #  c(input$UserPanelLayoutCols, input$UserPanelLayoutRows)} 
+      #  else NULL},
+      as.table=TRUE,
+      scales=list(alternating=FALSE, x=list(rot=45)),
+      xlab=input$UserXVariable,
+      ylab="protein"
+    )
+    
+    # print plot to output panel
+    print(heat)
+     
+    output$UserDownloadHeat <- downloadHandler(
+      filename="heatmap.svg",
+      content = function(file) {
+        svg(file, width=input$UserPrintWidth, height=input$UserPrintHeight)
+        print(heat)
+        dev.off()
+      },
+      contentType="image/svg"
+    )
+    
+  })
+  
   output$table <- renderTable(digits=4, {
     
     # RENDER TABLE WITH QUANTITIES OF SELECTED PROTEINS

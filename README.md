@@ -12,7 +12,7 @@ Features:
 
 ### Structure
 
-ShinyMC consists of a set of R scripts that determine the functionality.
+ShinyProt consists of a set of R scripts that determine the functionality.
 
 - app.R contains the main body of functions. It is devided into a GUI and a server part. The GUI contains the interactive modules such as sliders and check boxes. The server obtains input parameters from the GUI and adjusts the graphical output accordingly (changes charts on the fly)
 - custom.themes.R contains a set of slightly customized lattice themes
