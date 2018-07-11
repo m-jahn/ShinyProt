@@ -14,6 +14,7 @@ library(shinyTree)
 library(shinythemes)
 library(dendextend)
 source("custom.themes.R")
+source("helpbox.R")
 
 
 # define some global variables like
@@ -31,170 +32,157 @@ datalistfiles <- list.files(datadir, pattern="\\.csv$", full.names=TRUE)
 ui <- shinyUI(navbarPage(
   
   # Title on NavBar Header
-  "ShinyProt - interactive gene expression analysis",
+  title="ShinyProt - interactive gene expression analysis",
   
   # Use one of different shiny themes
   theme=shinytheme("cosmo"),
   #shinythemes::themeSelector(),
   
-  # Sidebar
-  sidebarLayout(
+  tabPanel("App",
+  
     
-    # HERE COME ALL CONTROLS FOR THE SIDEBAR PANEL
-    sidebarPanel(width=5,
+    # Sidebar
+    sidebarLayout(
       
-      # SELECT DATA
-      selectInput("UserDataChoice",
-        "Choose data:", datalistfiles, 
-        selected=datalistfiles[1]),
-      
-      # SELECT PLOT OPTIONS
-      hr(),
-      h4("PLOT OPTIONS"),
-      fluidRow(
+      # HERE COME ALL CONTROLS FOR THE SIDEBAR PANEL
+      sidebarPanel(width=5,
         
-        # PANEL LAYOUT AND PLOT DIMESNIONS
-        column(width=4, 
-          selectInput("UserPanelLayout", 
-            "Panel layout:", choices=list("automatic", "manual"),
-            selected="automatic")
-        ),
-        column(width=2, 
-          conditionalPanel(condition="input.UserPanelLayout=='manual'",
-            numericInput("UserPanelLayoutCols", 
-              "Columns:", value=4)
+        # SELECT DATA
+        selectInput("UserDataChoice",
+          "Choose data:", datalistfiles, 
+          selected=datalistfiles[1]),
+        
+        # SELECT PLOT OPTIONS
+        hr(),
+        h4("PLOT OPTIONS"),
+        fluidRow(
+          
+          # PANEL LAYOUT AND PLOT DIMESNIONS
+          column(width=4, 
+            selectInput("UserPanelLayout", 
+              "Panel layout:", choices=list("automatic", "manual"),
+              selected="automatic")
+          ),
+          column(width=2, 
+            conditionalPanel(condition="input.UserPanelLayout=='manual'",
+              numericInput("UserPanelLayoutCols", 
+                "Columns:", value=4)
+            )
+          ),
+          column(width=2, 
+            conditionalPanel(condition="input.UserPanelLayout=='manual'",
+              numericInput("UserPanelLayoutRows", 
+              "Rows:", value=4)
+            )
+          ),
+          column(width=2, 
+            selectInput("UserPrintHeight",
+              "Plot height:", choices=c(1:10*100), selected=700)
+          ),
+          column(width=2, 
+            selectInput("UserPrintWidth",
+              "Plot width:", choices=c("auto", 1:10*100), selected="auto")
           )
         ),
-        column(width=2, 
-          conditionalPanel(condition="input.UserPanelLayout=='manual'",
-            numericInput("UserPanelLayoutRows", 
-            "Rows:", value=4)
+        
+        fluidRow(
+          
+          # FACTORIZATION AND ORDERING OPTIONS
+          column(width=4, 
+            selectInput("UserXVariable", 
+              "X variable:", choices=c("protein","condition","growthrate",
+                "psortB_localization","Process","Pathway","Protein"),
+              selected="condition")
+          ),
+          column(width=4, 
+            selectInput("UserYVariable", 
+              "Y variable:", choices=list("rel_intensity", "mean_intensity", "median_intensity", 
+                  "mean_mass_fraction_norm"),
+              selected="rel_intensity")
+          ),
+          column(width=4, 
+            selectInput("UserCondVariable", 
+              "Conditioning variable:", choices=list("protein","condition","growthrate",
+                "psortB_localization","Process","Pathway","Protein"),
+              selected="protein")
           )
         ),
-        column(width=2, 
-          selectInput("UserPrintHeight",
-            "Plot height:", choices=c(1:10*100), selected=700)
-        ),
-        column(width=2, 
-          selectInput("UserPrintWidth",
-            "Plot width:", choices=c("auto", 1:10*100), selected="auto")
-        )
-      ),
-      
-      fluidRow(
         
-        # FACTORIZATION AND ORDERING OPTIONS
-        column(width=4, 
-          selectInput("UserXVariable", 
-            "X variable:", choices=c("protein","condition","growthrate",
-              "psortB_localization","Process","Pathway","Protein"),
-            selected="condition")
+        fluidRow(
+          
+          # OTHER GRAPHICAL PLOT OPTIONS
+          column(width=3, 
+            selectInput("UserTheme", 
+              "Theme:", choices=list("lattice grey", "lattice blue", "ggplot1", "ggplot2"),
+              selected="lattice grey")
+          ),
+          column(width=3, 
+            selectInput("UserGrouping", 
+              "Color coding:", choices=list("none", "by conditioning", "by X variable", "by Y variable"),
+              selected="by condition")
+          ),
+          column(width=3, 
+            selectInput("UserPlotType", 
+              "Plot type:", choices=list("points", "lines", "points and lines"),
+              selected="points")
+          ),
+          column(width=3, 
+            selectInput("UserLogY", 
+              "Y scale:", choices=list("linear","log 2","log 10", "log e"),
+              selected="log 2")
+          )
         ),
-        column(width=4, 
-          selectInput("UserYVariable", 
-            "Y variable:", choices=list("rel_intensity", "mean_intensity", "median_intensity", 
-                "mean_mass_fraction_norm"),
-            selected="rel_intensity")
-        ),
-        column(width=4, 
-          selectInput("UserCondVariable", 
-            "Conditioning variable:", choices=list("protein","condition","growthrate",
-              "psortB_localization","Process","Pathway","Protein"),
-            selected="protein")
-        )
-      ),
-      
-      fluidRow(
         
-        # OTHER GRAPHICAL PLOT OPTIONS
-        column(width=3, 
-          selectInput("UserTheme", 
-            "Theme:", choices=list("lattice grey", "lattice blue", "ggplot1", "ggplot2"),
-            selected="lattice grey")
-        ),
-        column(width=3, 
-          selectInput("UserGrouping", 
-            "Color coding:", choices=list("none", "by conditioning", "by X variable", "by Y variable"),
-            selected="by condition")
-        ),
-        column(width=3, 
-          selectInput("UserPlotType", 
-            "Plot type:", choices=list("points", "lines", "points and lines"),
-            selected="points")
-        ),
-        column(width=3, 
-          selectInput("UserLogY", 
-            "Y scale:", choices=list("linear","log 2","log 10", "log e"),
-            selected="log 2")
+        
+        hr(),
+        fluidRow(
+          
+          # SELECT GENES OR PROTEINS FROM TREE
+          column(width=6, 
+            h4("PROTEIN SELECTION"),
+            shinyTree("tree", search=TRUE, checkbox=TRUE)
+          ),
+          
+          # INFO BOX WITH CONTACT AND REFERENCES (EXTERNAL)
+          helpbox(width=6)
+          
         )
       ),
       
       
-      hr(),
-      fluidRow(
-        
-        # SELECT GENES OR PROTEINS FROM TREE
-        column(width=6, 
-          h4("PROTEIN SELECTION"),
-          shinyTree("tree", search=TRUE, checkbox=TRUE)
-        ),
-        
-        # INFO BOX WITH CONTACT AND REFERENCES
-        column(width=6, 
-          h4("INFO & HELP"),
-          wellPanel(
-            h4("HOW TO"),
-            p("Just use the tree to select subsets of genes and pathways.
-              Not every button works as input for every plot, just play around."),
-            h4("DATA AND REFERENCES"),
-            p("Proteomics data obtained by labelfree quantification of LC-MS-MS measurements.
-              Model organism: Synechocystis PCC6803.
-              Data used in this app was collected for a study by Jahn et al., which is currently under review"),
-            #a(href = '', target="_blank", 'Jahn et al., Cell Reports, 2018, under review'),
-            p("The design of this app was largely inspired by", 
-              a(href="http://neuroexpresso.org", target= '_blank', 'neuroexpressor.org')
+      # MAIN PANEL WITH OUTPUT PLOTS
+      # Each tab has individual Download buttons
+      column(width=7,
+        wellPanel(
+          tabsetPanel(
+            tabPanel("DOT PLOT", uiOutput("dotplot.ui"),
+              downloadButton("UserDownloadDotplot", "Download svg")
             ),
-            p("The source code for this R shiny app is available on ", 
-              a(href="https://github.com/m-jahn", target= '_blank', 'github/m-jahn')
+            tabPanel("BOX PLOT", uiOutput("barchart.ui"),
+              downloadButton("UserDownloadBoxplot", "Download svg")
             ),
-            #
-            h4("CONTACT"),
-            p("For questions or reporting issues, contact 
-              Michael Jahn, Science For Life Lab - Royal Technical University (KTH), Stockholm"), 
-            p(
-              a(href="mailto:michael.jahn@scilifelab.se", target= '_blank', 'email: Michael Jahn')
+            tabPanel("HEAT MAP", uiOutput("heatmap.ui"),
+              downloadButton("UserDownloadHeat", "Download svg")
+            ),
+            tabPanel("CLUSTERING", uiOutput("clustering.ui"),
+              numericInput("UserNClust", label="N cluster", value=4, step=1),
+              downloadButton("UserDownloadCluster", "Download svg")
+            ),
+            tabPanel("TABLE", uiOutput("table.ui"),
+              downloadButton("UserDownloadTable", "Download table")
             )
           )
         )
       )
-    ),
-    
-    
-    # MAIN PANEL WITH OUTPUT PLOTS
-    # Each tab has individual Download buttons
-    column(width=7,
-      wellPanel(
-        tabsetPanel(
-          tabPanel("DOT PLOT", uiOutput("dotplot.ui"),
-            downloadButton("UserDownloadDotplot", "Download svg")
-          ),
-          tabPanel("BOX PLOT", uiOutput("barchart.ui"),
-            downloadButton("UserDownloadBoxplot", "Download svg")
-          ),
-          tabPanel("HEAT MAP", uiOutput("heatmap.ui"),
-            downloadButton("UserDownloadHeat", "Download svg")
-          ),
-          tabPanel("CLUSTERING", uiOutput("clustering.ui"),
-            numericInput("UserNClust", label="N cluster", value=4, step=1),
-            downloadButton("UserDownloadCluster", "Download svg")
-          ),
-          tabPanel("TABLE", uiOutput("table.ui"),
-            downloadButton("UserDownloadTable", "Download table")
-          )
-        )
-      )
     )
+  ),
+  
+  tabPanel("About", 
+    # THE SAME OR A BIT EXTENDED HELP BOX AS IN SIDEBAR
+    helpbox(width=8),
+    fundbox(width=8)
   )
+
 ))
 
 
@@ -274,17 +262,13 @@ server <- shinyServer(function(input, output) {
       subset(., grepl("3*[a-z]4*[0-9]", .))
     
     
-    # set log or lin flag and adjust scales accordingly
-    scaleoptions=list(
-       alternating=FALSE, 
-       x=list(rot=45),
-       y=list(log={
-         if (input$UserLogY=="linear") FALSE 
-         else if(input$UserLogY=="log 2") 2
-         else if(input$UserLogY=="log 10") 10
-         else "e"
-      })
-    )
+    # apply log or lin transfomration to orig data
+    logfun <- function(x) {
+      if (input$UserLogY=="linear") x
+      else if(input$UserLogY=="log 2") log2(x)
+      else if(input$UserLogY=="log 10") log10(x)
+      else log(x)
+    }
     
     # select type of plot (points or lines)
     type={
@@ -302,14 +286,17 @@ server <- shinyServer(function(input, output) {
     
     
     # Actual plot of gene expression is drawn
-    plot <- xyplot(get(input$UserYVariable) ~ factor(get(input$UserXVariable)) | 
+    plot <- xyplot(logfun(get(input$UserYVariable)) ~ factor(get(input$UserXVariable)) | 
         factor(get(input$UserCondVariable)), 
       subset(data(), protein %in% filtGenes),
       groups={
         if (input$UserGrouping=="none") NULL
         else if(input$UserGrouping=="by conditioning") get(input$UserCondVariable)
         else if(input$UserGrouping=="by X variable") get(input$UserXVariable)
-        else if(input$UserGrouping=="by Y variable") .bincode(get(input$UserYVariable), pretty(get(input$UserYVariable)))
+        else if(input$UserGrouping=="by Y variable") {
+          get(input$UserYVariable) %>% logfun %>%
+          .bincode(., pretty(.))
+        }
       }, 
       auto.key=FALSE, type=type,
       par.settings=theme, 
@@ -318,9 +305,9 @@ server <- shinyServer(function(input, output) {
         c(input$UserPanelLayoutCols, input$UserPanelLayoutRows)} 
         else NULL},
       as.table=TRUE,
-      scales=scaleoptions,
+      scales=list(alternating=FALSE, x=list(rot=45)),
       xlab=input$UserXVariable,
-      ylab=input$UserYVariable,
+      ylab=paste0(input$UserYVariable, " (", input$UserLogY, ")"),
       panel=function(x, y, ...) {
         if (input$UserTheme=="ggplot2") 
           panel.grid(h=-1, v=-1, col="white")
@@ -354,17 +341,14 @@ server <- shinyServer(function(input, output) {
       subset(., grepl("3*[a-z]4*[0-9]", .))
     
     
-    # set log or lin flag and adjust scales accordingly
-    scaleoptions=list(
-       alternating=FALSE, 
-       x=list(rot=45),
-       y=list(log={
-         if (input$UserLogY=="linear") FALSE 
-         else if(input$UserLogY=="log 2") 2
-         else if(input$UserLogY=="log 10") 10
-         else "e"
-      })
-    )
+    # apply log or lin transfomration to orig data
+    logfun <- function(x) {
+      if (input$UserLogY=="linear") x
+      else if(input$UserLogY=="log 2") log2(x)
+      else if(input$UserLogY=="log 10") log10(x)
+      else log(x)
+    }
+    
     
     # select theme
      if (input$UserTheme=="ggplot1") theme <- ggplot2like()
@@ -374,7 +358,7 @@ server <- shinyServer(function(input, output) {
     
     
     # Actual plot of gene expression is drawn
-    plot <- bwplot(get(input$UserYVariable) ~ factor(get(input$UserXVariable)) | 
+    plot <- bwplot(logfun(get(input$UserYVariable)) ~ factor(get(input$UserXVariable)) | 
         factor(get(input$UserCondVariable)), 
       subset(data(), protein %in% filtGenes),
       auto.key=FALSE, pch="|",
@@ -384,9 +368,9 @@ server <- shinyServer(function(input, output) {
         c(input$UserPanelLayoutCols, input$UserPanelLayoutRows)}
         else NULL},
       as.table=TRUE,
-      scales=scaleoptions,
+      scales=list(alternating=FALSE, x=list(rot=45)),
       xlab=input$UserXVariable,
-      ylab=input$UserYVariable,
+      ylab=paste0(input$UserYVariable, " (", input$UserLogY, ")"),
       panel=function(x, y, ...) {
         if (input$UserTheme=="ggplot2")
           panel.grid(h=-1, v=-1, col="white")
@@ -446,10 +430,6 @@ server <- shinyServer(function(input, output) {
       subset(data(), protein %in% filtGenes),
       auto.key=FALSE,
       par.settings=theme, 
-      #layout={
-      #  if (input$UserPanelLayout=="manual") {
-      #  c(input$UserPanelLayoutCols, input$UserPanelLayoutRows)} 
-      #  else NULL},
       as.table=TRUE,
       scales=list(alternating=FALSE, x=list(rot=45)),
       xlab=input$UserXVariable,
