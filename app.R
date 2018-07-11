@@ -28,16 +28,16 @@ datalistfiles <- list.files(datadir, pattern="\\.csv$", full.names=TRUE)
 # ***********************************************
 # Define UI for application that draws a histogram
 
-ui <- shinyUI(fluidPage(
+ui <- shinyUI(navbarPage(
+  
+  # Title on NavBar Header
+  "ShinyProt - interactive gene expression analysis",
   
   # Use one of different shiny themes
   theme=shinytheme("cosmo"),
   #shinythemes::themeSelector(),
   
-  # Application title
-  titlePanel("ShinyProt - interactive gene expression analysis"),
-  
-  # Sidebar with a slider input for number of bins 
+  # Sidebar
   sidebarLayout(
     
     # HERE COME ALL CONTROLS FOR THE SIDEBAR PANEL
@@ -173,22 +173,24 @@ ui <- shinyUI(fluidPage(
     # MAIN PANEL WITH OUTPUT PLOTS
     # Each tab has individual Download buttons
     column(width=7,
-      tabsetPanel(
-        tabPanel("DOT PLOT", uiOutput("dotplot.ui"),
-          downloadButton("UserDownloadDotplot", "Download svg")
-        ),
-        tabPanel("BOX PLOT", uiOutput("barchart.ui"),
-          downloadButton("UserDownloadBoxplot", "Download svg")
-        ),
-        tabPanel("HEAT MAP", uiOutput("heatmap.ui"),
-          downloadButton("UserDownloadHeat", "Download svg")
-        ),
-        tabPanel("CLUSTERING", uiOutput("clustering.ui"),
-          numericInput("UserNClust", label="N cluster", value=4, step=1),
-          downloadButton("UserDownloadCluster", "Download svg")
-        ),
-        tabPanel("TABLE", uiOutput("table.ui"),
-          downloadButton("UserDownloadTable", "Download table")
+      wellPanel(
+        tabsetPanel(
+          tabPanel("DOT PLOT", uiOutput("dotplot.ui"),
+            downloadButton("UserDownloadDotplot", "Download svg")
+          ),
+          tabPanel("BOX PLOT", uiOutput("barchart.ui"),
+            downloadButton("UserDownloadBoxplot", "Download svg")
+          ),
+          tabPanel("HEAT MAP", uiOutput("heatmap.ui"),
+            downloadButton("UserDownloadHeat", "Download svg")
+          ),
+          tabPanel("CLUSTERING", uiOutput("clustering.ui"),
+            numericInput("UserNClust", label="N cluster", value=4, step=1),
+            downloadButton("UserDownloadCluster", "Download svg")
+          ),
+          tabPanel("TABLE", uiOutput("table.ui"),
+            downloadButton("UserDownloadTable", "Download table")
+          )
         )
       )
     )
