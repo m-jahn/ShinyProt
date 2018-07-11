@@ -165,8 +165,8 @@ ui <- shinyUI(navbarPage(
               downloadButton("UserDownloadHeat", "Download svg")
             ),
             tabPanel("CLUSTERING", uiOutput("clustering.ui"),
-              numericInput("UserNClust", label="N cluster", value=4, step=1),
-              downloadButton("UserDownloadCluster", "Download svg")
+              numericInput("UserNClust", label="N cluster", value=4, step=1)#,
+              #downloadButton("UserDownloadCluster", "Download svg")
             ),
             tabPanel("TABLE", uiOutput("table.ui"),
               downloadButton("UserDownloadTable", "Download table")
@@ -323,7 +323,10 @@ server <- shinyServer(function(input, output) {
     output$UserDownloadDotplot <- downloadHandler(
       filename="dotplot.svg",
       content = function(file) {
-        svg(file, width=input$UserPrintWidth, height=input$UserPrintHeight)
+        svg(file, 
+          width={if (input$UserPrintWidth=="auto") 7
+            else as.numeric(input$UserPrintWidth)/100}, 
+          height=as.numeric(input$UserPrintHeight)/100)
         print(plot)
         dev.off()
       },
@@ -387,7 +390,10 @@ server <- shinyServer(function(input, output) {
     output$UserDownloadBoxplot <- downloadHandler(
       filename="boxplot.svg",
       content = function(file) {
-        svg(file, width=input$UserPrintWidth, height=input$UserPrintHeight)
+        svg(file, 
+          width={if (input$UserPrintWidth=="auto") 7
+            else as.numeric(input$UserPrintWidth)/100}, 
+          height=as.numeric(input$UserPrintHeight)/100)
         print(plot)
         dev.off()
       },
@@ -442,7 +448,10 @@ server <- shinyServer(function(input, output) {
     output$UserDownloadHeat <- downloadHandler(
       filename="heatmap.svg",
       content = function(file) {
-        svg(file, width=input$UserPrintWidth, height=input$UserPrintHeight)
+        svg(file, 
+          width={if (input$UserPrintWidth=="auto") 7
+            else as.numeric(input$UserPrintWidth)/100}, 
+          height=as.numeric(input$UserPrintHeight)/100)
         print(plot)
         dev.off()
       },
@@ -497,15 +506,18 @@ server <- shinyServer(function(input, output) {
     print(clust)
     
     
-    output$UserDownloadCluster <- downloadHandler(
-      filename="clustering.svg",
-      content = function(file) {
-        svg(file, width=input$UserPrintWidth, height=input$UserPrintHeight)
-        print(clust)
-        dev.off()
-      },
-      contentType="image/svg"
-    )
+    # output$UserDownloadCluster <- downloadHandler(
+    #   filename="clustering.svg",
+    #   content = function(file) {
+    #     svg(file, 
+    #       width={if (input$UserPrintWidth=="auto") 7
+    #         else as.numeric(input$UserPrintWidth)/100}, 
+    #       height=as.numeric(input$UserPrintHeight)/100)
+    #     clust
+    #     dev.off()
+    #   },
+    #   contentType="image/svg"
+    # )
     
   })
   
