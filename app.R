@@ -39,7 +39,6 @@ ui <- shinyUI(navbarPage(
   #shinythemes::themeSelector(),
   
   tabPanel("App",
-  
     
     # Sidebar
     sidebarLayout(
@@ -177,6 +176,7 @@ ui <- shinyUI(navbarPage(
     )
   ),
   
+  # THE ABOUT PAGE
   tabPanel("About", 
     # THE SAME OR A BIT EXTENDED HELP BOX AS IN SIDEBAR
     helpbox(width=8),
