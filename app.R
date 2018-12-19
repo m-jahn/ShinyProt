@@ -14,6 +14,7 @@ library(shinyTree)
 library(shinythemes)
 library(dendextend)
 source("custom.themes.R")
+source("custom.panel.functions.R")
 source("helpbox.R")
 
 
@@ -316,6 +317,30 @@ server <- shinyServer(function(input, output) {
         panel.xyplot(x, y, ...)
       }
     )
+    
+    # optional addition of error margins, in this case relative STDEV
+    # if (
+    #   input$UserYVariable!="rel_intensity"
+    # ) {
+    #   plot <- plot + 
+    #     as.layer(
+    #       xyplot(
+    #         logfun(get(input$UserYVariable)*(1+CV)) + 
+    #         logfun(get(input$UserYVariable)*(1-CV)) ~ 
+    #         factor(get(input$UserXVariable)) | 
+    #         factor(get(input$UserCondVariable)), 
+    #         subset(data(), protein %in% filtGenes),
+    #         panel=function(x, y, ...) {
+    #           # invert second half of x and y values in order to plot as polygon
+    #           x <- x[c(1:(length(x)/2), length(x):(length(x)/2+1))] %>% as.numeric
+    #           y <- y[c(1:(length(y)/2), length(y):(length(y)/2+1))]
+    #           panel.polygon(x, y, col=grey(0.5, alpha=0.2), border=NA, ...)
+    #           panel.key("grey: stdev", 1, corner=c(0.9, 0.9), col=grey(0.7), 
+    #             lines=FALSE, points=TRUE, pch=15, pos=4)
+    #         }
+    #       )
+    #     )
+    # }
     
     # print plot to output panel
     print(plot)
