@@ -119,7 +119,7 @@ ui <- shinyUI(navbarPage(
           column(width=3, 
             selectInput("UserGrouping", 
               "Color coding:", choices=list("none", "by conditioning", "by X variable", "by Y variable"),
-              selected="by condition")
+              selected="by conditioning")
           ),
           column(width=3, 
             selectInput("UserPlotType", 
@@ -200,7 +200,7 @@ server <- shinyServer(function(input, output) {
     data <- read.csv(input$UserDataChoice, stringsAsFactors=FALSE)
     # filter columns by a set of allowed regular expressions
     data <- data[grep(pattern="protein|condition|growthrate|mean_|median_|
-      sd_|CV|rel_intensity|psortB_loc|Process|Pathway|Protein|Length|
+      sd_|CV|CI|rel_intensity|psortB_loc|Process|Pathway|Protein|Length|
       Helices|MolWeight|model.category", colnames(data))]
     data
     
@@ -300,7 +300,7 @@ server <- shinyServer(function(input, output) {
         }
       }, 
       auto.key=FALSE, type=type,
-      par.settings=theme, 
+      par.settings=theme,
       layout={
         if (input$UserPanelLayout=="manual") {
         c(input$UserPanelLayoutCols, input$UserPanelLayoutRows)} 
@@ -318,33 +318,36 @@ server <- shinyServer(function(input, output) {
       }
     )
     
-    # optional addition of error margins, in this case relative STDEV
-    # if (
-    #   input$UserYVariable!="rel_intensity"
-    # ) {
-    #   plot <- plot + 
-    #     as.layer(
-    #       xyplot(
-    #         logfun(get(input$UserYVariable)*(1+CV)) + 
-    #         logfun(get(input$UserYVariable)*(1-CV)) ~ 
-    #         factor(get(input$UserXVariable)) | 
-    #         factor(get(input$UserCondVariable)), 
-    #         subset(data(), protein %in% filtGenes),
-    #         panel=function(x, y, ...) {
-    #           # invert second half of x and y values in order to plot as polygon
-    #           x <- x[c(1:(length(x)/2), length(x):(length(x)/2+1))] %>% as.numeric
-    #           y <- y[c(1:(length(y)/2), length(y):(length(y)/2+1))]
-    #           panel.polygon(x, y, col=grey(0.5, alpha=0.2), border=NA, ...)
-    #           panel.key("grey: stdev", 1, corner=c(0.9, 0.9), col=grey(0.7), 
-    #             lines=FALSE, points=TRUE, pch=15, pos=4)
-    #         }
-    #       )
-    #     )
-    # }
+    # optional addition of error margins, for mean, median, and mean mass 
+    # fraction we use the relative standard deviation, 
+    # for fold change we use confidence interval
+    if (input$UserYVariable=="rel_intensity") error='CI'
+    else error='CV'
+    
+    plot <- plot +
+    as.layer(
+      xyplot(
+        logfun(get(input$UserYVariable)*(1+get(error))) +
+        logfun(get(input$UserYVariable)*(1-get(error))) ~
+        factor(get(input$UserXVariable)) |
+        factor(get(input$UserCondVariable)),
+        subset(data(), protein %in% filtGenes),
+        panel=function(x, y, ...) {
+          panel.segments(x0=as.numeric(x), x1=as.numeric(x), 
+            y0=y[1:(length(y)/2)], y1=y[(length(y)/2+1):length(y)], 
+            col=grey(0.6, alpha=0.3), lwd=1.5)
+          panel.key(
+            {if (input$UserYVariable=="rel_intensity") "+/- 95% CI" else "+/- STDEV"}, 
+            which.panel=1, corner=c(0.05, 0.05), 
+            lines=FALSE, points=FALSE, col=grey(0.6), cex=0.7
+          )
+        }
+      )
+    )
     
     # print plot to output panel
     print(plot)
-     
+    
     output$UserDownloadDotplot <- downloadHandler(
       filename="dotplot.svg",
       content = function(file) {
@@ -360,7 +363,7 @@ server <- shinyServer(function(input, output) {
     
   })
   
-  # PLOT DATA USING BARCHART FROM LATTICE
+  # PLOT DATA USING BWPLOT FROM LATTICE
   output$box_chart <- renderPlot(res=120, {
     
     # filter data by user choices
