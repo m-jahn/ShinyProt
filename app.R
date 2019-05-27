@@ -3,6 +3,7 @@
 # http://shiny.rstudio.com/
 
 
+
 # LOADING LIBRARIES
 # ***********************************************
 library(shiny)
@@ -23,7 +24,7 @@ source("helpbox.R")
 datadir <- "data"
 
 # make list of database files in data folder
-datalistfiles <- list.files(datadir, pattern="\\.csv$", full.names=TRUE)
+datalistfiles <- list.files(datadir, pattern = "\\.csv$", full.names = TRUE)
 
 
 # SHINY UI
@@ -33,10 +34,10 @@ datalistfiles <- list.files(datadir, pattern="\\.csv$", full.names=TRUE)
 ui <- shinyUI(navbarPage(
   
   # Title on NavBar Header
-  title="ShinyProt - interactive gene expression analysis",
+  title = "ShinyProt - interactive gene expression analysis",
   
   # Use one of different shiny themes
-  theme=shinytheme("cosmo"),
+  theme = shinytheme("cosmo"),
   #shinythemes::themeSelector(),
   
   tabPanel("App",
@@ -45,12 +46,12 @@ ui <- shinyUI(navbarPage(
     sidebarLayout(
       
       # HERE COME ALL CONTROLS FOR THE SIDEBAR PANEL
-      sidebarPanel(width=5,
+      sidebarPanel(width = 5,
         
         # SELECT DATA
         selectInput("UserDataChoice",
           "Choose data:", datalistfiles, 
-          selected=datalistfiles[1]),
+          selected = datalistfiles[1]),
         
         # SELECT PLOT OPTIONS
         hr(),
@@ -58,78 +59,78 @@ ui <- shinyUI(navbarPage(
         fluidRow(
           
           # PANEL LAYOUT AND PLOT DIMESNIONS
-          column(width=4, 
+          column(width = 4, 
             selectInput("UserPanelLayout", 
-              "Panel layout:", choices=list("automatic", "manual"),
-              selected="automatic")
+              "Panel layout:", choices = list("automatic", "manual"),
+              selected = "automatic")
           ),
-          column(width=2, 
-            conditionalPanel(condition="input.UserPanelLayout=='manual'",
+          column(width = 2, 
+            conditionalPanel(condition = "input.UserPanelLayout == 'manual'",
               numericInput("UserPanelLayoutCols", 
-                "Columns:", value=4)
+                "Columns:", value = 4)
             )
           ),
-          column(width=2, 
-            conditionalPanel(condition="input.UserPanelLayout=='manual'",
+          column(width = 2, 
+            conditionalPanel(condition = "input.UserPanelLayout == 'manual'",
               numericInput("UserPanelLayoutRows", 
-              "Rows:", value=4)
+              "Rows:", value = 4)
             )
           ),
-          column(width=2, 
+          column(width = 2, 
             selectInput("UserPrintHeight",
-              "Plot height:", choices=c(1:10*100), selected=700)
+              "Plot height:", choices = c(1:10*100), selected = 700)
           ),
-          column(width=2, 
+          column(width = 2, 
             selectInput("UserPrintWidth",
-              "Plot width:", choices=c("auto", 1:10*100), selected="auto")
+              "Plot width:", choices = c("auto", 1:10*100), selected = "auto")
           )
         ),
         
         fluidRow(
           
           # FACTORIZATION AND ORDERING OPTIONS
-          column(width=4, 
+          column(width = 4, 
             selectInput("UserXVariable", 
-              "X variable:", choices=c("protein","condition","growthrate",
+              "X variable:", choices = c("protein","condition","growthrate",
                 "psortB_localization","Process","Pathway","Protein"),
-              selected="condition")
+              selected = "condition")
           ),
-          column(width=4, 
+          column(width = 4, 
             selectInput("UserYVariable", 
-              "Y variable:", choices=list("rel_intensity", "mean_intensity", "median_intensity", 
+              "Y variable:", choices = list("rel_intensity", "mean_intensity", "median_intensity", 
                   "mean_mass_fraction_norm"),
-              selected="rel_intensity")
+              selected = "rel_intensity")
           ),
-          column(width=4, 
+          column(width = 4, 
             selectInput("UserCondVariable", 
-              "Conditioning variable:", choices=list("protein","condition","growthrate",
+              "Conditioning variable:", choices = list("protein","condition","growthrate",
                 "psortB_localization","Process","Pathway","Protein"),
-              selected="protein")
+              selected = "protein")
           )
         ),
         
         fluidRow(
           
           # OTHER GRAPHICAL PLOT OPTIONS
-          column(width=3, 
+          column(width = 3, 
             selectInput("UserTheme", 
-              "Theme:", choices=list("lattice grey", "lattice blue", "ggplot1", "ggplot2"),
-              selected="lattice grey")
+              "Theme:", choices = list("lattice grey", "lattice blue", "ggplot1", "ggplot2"),
+              selected = "lattice grey")
           ),
-          column(width=3, 
+          column(width = 3, 
             selectInput("UserGrouping", 
-              "Color coding:", choices=list("none", "by conditioning", "by X variable", "by Y variable"),
-              selected="by conditioning")
+              "Color coding:", choices = list("none", "by conditioning", "by X variable", "by Y variable"),
+              selected = "by conditioning")
           ),
-          column(width=3, 
+          column(width = 3, 
             selectInput("UserPlotType", 
-              "Plot type:", choices=list("points", "lines", "points and lines"),
-              selected="points")
+              "Plot type:", choices = list("points", "lines", "points and lines"),
+              selected = "points")
           ),
-          column(width=3, 
+          column(width = 3, 
             selectInput("UserLogY", 
-              "Y scale:", choices=list("linear","log 2","log 10", "log e"),
-              selected="log 2")
+              "Y scale:", choices = list("linear","log 2","log 10", "log e"),
+              selected = "log 2")
           )
         ),
         
@@ -138,13 +139,13 @@ ui <- shinyUI(navbarPage(
         fluidRow(
           
           # SELECT GENES OR PROTEINS FROM TREE
-          column(width=6, 
+          column(width = 6, 
             h4("PROTEIN SELECTION"),
-            shinyTree("tree", search=TRUE, checkbox=TRUE)
+            shinyTree("tree", search = TRUE, checkbox = TRUE)
           ),
           
           # INFO BOX WITH CONTACT AND REFERENCES (EXTERNAL)
-          helpbox(width=6)
+          helpbox(width = 6)
           
         )
       ),
@@ -152,7 +153,7 @@ ui <- shinyUI(navbarPage(
       
       # MAIN PANEL WITH OUTPUT PLOTS
       # Each tab has individual Download buttons
-      column(width=7,
+      column(width = 7,
         wellPanel(
           tabsetPanel(
             tabPanel("DOT PLOT", uiOutput("dotplot.ui"),
@@ -161,12 +162,14 @@ ui <- shinyUI(navbarPage(
             tabPanel("BOX PLOT", uiOutput("barchart.ui"),
               downloadButton("UserDownloadBoxplot", "Download svg")
             ),
+            tabPanel("VIOLIN PLOT", uiOutput("violinplot.ui"),
+              downloadButton("UserDownloadViolinplot", "Download svg")
+            ),
             tabPanel("HEAT MAP", uiOutput("heatmap.ui"),
               downloadButton("UserDownloadHeat", "Download svg")
             ),
             tabPanel("CLUSTERING", uiOutput("clustering.ui"),
-              numericInput("UserNClust", label="N cluster", value=4, step=1)#,
-              #downloadButton("UserDownloadCluster", "Download svg")
+              numericInput("UserNClust", label = "N cluster", value = 4, step = 1)
             ),
             tabPanel("TABLE", uiOutput("table.ui"),
               downloadButton("UserDownloadTable", "Download table")
@@ -180,8 +183,8 @@ ui <- shinyUI(navbarPage(
   # THE ABOUT PAGE
   tabPanel("About", 
     # THE SAME OR A BIT EXTENDED HELP BOX AS IN SIDEBAR
-    helpbox(width=8),
-    fundbox(width=8)
+    helpbox(width = 8),
+    fundbox(width = 8)
   )
 
 ))
@@ -197,14 +200,61 @@ server <- shinyServer(function(input, output) {
   data <- reactive({
     
     # read csv tables of user selection
-    data <- read.csv(input$UserDataChoice, stringsAsFactors=FALSE)
+    data <- read.csv(input$UserDataChoice, stringsAsFactors = FALSE)
     # filter columns by a set of allowed regular expressions
-    data <- data[grep(pattern="protein|condition|growthrate|mean_|median_|
+    data <- data[grep(pattern = "protein|condition|growthrate|mean_|median_|
       sd_|CV|CI|rel_intensity|psortB_loc|Process|Pathway|Protein|Length|
       Helices|MolWeight|model.category", colnames(data))]
     data
     
   })
+  
+  # SOME GLOBAL FUNCTIONS THAT ALL PLOTS USE
+  # filter data by user choices
+  filtGenes <- reactive({
+    get_selected(input$tree, format = "names") %>% 
+      unlist %>%
+      subset(., grepl("3*[a-z]4*[0-9]", .))
+  })
+  
+  # apply log or lin transformation to orig data
+  logfun <- function(x) {
+    if (input$UserLogY == "linear") x
+    else if(input$UserLogY == "log 2") log2(x)
+    else if(input$UserLogY == "log 10") log10(x)
+    else log(x)
+  }
+  
+  # select type of plot (points or lines)
+  type <- reactive({
+    if (input$UserPlotType == "points") "p"
+    else if(input$UserPlotType == "lines") "l"
+    else if(input$UserPlotType == "points and lines") "b"
+  })
+  
+  # select theme
+  theme <- reactive({
+    if (input$UserTheme == "ggplot1") ggplot2like()
+    else if (input$UserTheme == "ggplot2") custom.ggplot
+    else if (input$UserTheme == "lattice grey") custom.lattice
+    else if (input$UserTheme == "lattice blue") theEconomist.theme()
+  })
+  
+  # generic download handler for all download buttons
+  getDownload <- function(filename, plot) {
+    downloadHandler(
+      filename = filename,
+      content = function(file) {
+        svg(file, 
+          width = {if (input$UserPrintWidth == "auto") 7
+            else as.numeric(input$UserPrintWidth)/100}, 
+          height = as.numeric(input$UserPrintHeight)/100)
+        print(plot)
+        dev.off()
+      },
+      contentType = "image/svg"
+    )
+  }
   
   # SHINY TREE
   output$tree <- renderTree({
@@ -216,7 +266,7 @@ server <- shinyServer(function(input, output) {
     
     # generate list for tree using this recursive function
     makeTree <-function(rows, col, numcols) {
-      if(col==numcols) prot[rows, col] else {
+      if(col == numcols) prot[rows, col] else {
         spl <- split(rows, prot[rows, col])
         lapply(spl, function(rows) makeTree(rows, col+1, numcols))
       }
@@ -224,10 +274,10 @@ server <- shinyServer(function(input, output) {
     
     # apply function to make nested list of the tree
     listTree <- makeTree(seq_len(nrow(prot)), 1, ncol(prot))
-    # chnage attributes of some nodes so that they are selected right from the start
+    # change attributes of some nodes so that they are selected right from the start
     # if nothing is selected the tree returns NULL
     listTree[[1]][[1]] <- lapply(listTree[[1]][[1]], function(x) {
-      attr(x, which="stselected") <- TRUE; x})
+      attr(x, which = "stselected") <- TRUE; x})
     listTree
   })
   
@@ -237,16 +287,19 @@ server <- shinyServer(function(input, output) {
   # To control size of the plots, we need to wrap plots
   # into additional renderUI function that can take height argument
   output$dotplot.ui <- renderUI({
-    plotOutput("dotplot", height=input$UserPrintHeight, width=input$UserPrintWidth)
+    plotOutput("dotplot", height = input$UserPrintHeight, width = input$UserPrintWidth)
   })
   output$barchart.ui <- renderUI({
-    plotOutput("box_chart", height=input$UserPrintHeight, width=input$UserPrintWidth)
+    plotOutput("box_chart", height = input$UserPrintHeight, width = input$UserPrintWidth)
+  })
+  output$violinplot.ui <- renderUI({
+    plotOutput("violinplot", height = input$UserPrintHeight, width = input$UserPrintWidth)
   })
   output$heatmap.ui <- renderUI({
-    plotOutput("heatmap", height=input$UserPrintHeight, width=input$UserPrintWidth)
+    plotOutput("heatmap", height = input$UserPrintHeight, width = input$UserPrintWidth)
   })
   output$clustering.ui <- renderUI({
-    plotOutput("clustering", height=input$UserPrintHeight, width=input$UserPrintWidth)
+    plotOutput("clustering", height = input$UserPrintHeight, width = input$UserPrintWidth)
   })
   output$table.ui <- renderUI({
     tableOutput("table")
@@ -255,65 +308,36 @@ server <- shinyServer(function(input, output) {
   
   # PLOT DATA USING XYPLOT FROM LATTICE
   # that is made for multifactorial data
-  output$dotplot <- renderPlot(res=120, {
+  output$dotplot <- renderPlot(res = 120, {
     
-    # filter data by user choices
-    filtGenes <- get_selected(input$tree, format="names") %>% 
-      unlist %>%
-      subset(., grepl("3*[a-z]4*[0-9]", .))
-    
-    
-    # apply log or lin transfomration to orig data
-    logfun <- function(x) {
-      if (input$UserLogY=="linear") x
-      else if(input$UserLogY=="log 2") log2(x)
-      else if(input$UserLogY=="log 10") log10(x)
-      else log(x)
-    }
-    
-    # select type of plot (points or lines)
-    type={
-      if (input$UserPlotType=="points") "p"
-      else if(input$UserPlotType=="lines") "l"
-      else if(input$UserPlotType=="points and lines") "b"
-    }
-    
-    
-    # select theme
-     if (input$UserTheme=="ggplot1") theme <- ggplot2like()
-     else if (input$UserTheme=="ggplot2") theme <- custom.ggplot
-     else if (input$UserTheme=="lattice grey") theme <- custom.lattice
-     else if (input$UserTheme=="lattice blue") theme <- theEconomist.theme()
-    
-    
-    # Actual plot of gene expression is drawn
+    # plot of gene expression is drawn
     plot <- xyplot(logfun(get(input$UserYVariable)) ~ factor(get(input$UserXVariable)) | 
         factor(get(input$UserCondVariable)), 
-      subset(data(), protein %in% filtGenes),
-      groups={
-        if (input$UserGrouping=="none") NULL
-        else if(input$UserGrouping=="by conditioning") get(input$UserCondVariable)
-        else if(input$UserGrouping=="by X variable") get(input$UserXVariable)
-        else if(input$UserGrouping=="by Y variable") {
+      subset(data(), protein %in% filtGenes()),
+      groups = {
+        if (input$UserGrouping == "none") NULL
+        else if(input$UserGrouping == "by conditioning") get(input$UserCondVariable)
+        else if(input$UserGrouping == "by X variable") get(input$UserXVariable)
+        else if(input$UserGrouping == "by Y variable") {
           get(input$UserYVariable) %>% logfun %>%
           .bincode(., pretty(.))
         }
-      }, 
-      auto.key=FALSE, type=type,
-      par.settings=theme,
-      layout={
-        if (input$UserPanelLayout=="manual") {
+      },
+      auto.key = FALSE, type = type(),
+      par.settings = theme(),
+      layout = {
+        if (input$UserPanelLayout == "manual") {
         c(input$UserPanelLayoutCols, input$UserPanelLayoutRows)} 
         else NULL},
-      as.table=TRUE,
-      scales=list(alternating=FALSE, x=list(rot=45)),
-      xlab=input$UserXVariable,
-      ylab=paste0(input$UserYVariable, " (", input$UserLogY, ")"),
-      panel=function(x, y, ...) {
-        if (input$UserTheme=="ggplot2") 
-          panel.grid(h=-1, v=-1, col="white")
+      as.table = TRUE,
+      scales = list(alternating = FALSE, x = list(rot = 45)),
+      xlab = input$UserXVariable,
+      ylab = paste0(input$UserYVariable, " (", input$UserLogY, ")"),
+      panel = function(x, y, ...) {
+        if (input$UserTheme == "ggplot2") 
+          panel.grid(h = -1, v = -1, col = "white")
         else 
-          panel.grid(h=-1, v=-1, col=grey(0.9))
+          panel.grid(h = -1, v = -1, col = grey(0.9))
         panel.xyplot(x, y, ...)
       }
     )
@@ -321,8 +345,8 @@ server <- shinyServer(function(input, output) {
     # optional addition of error margins, for mean, median, and mean mass 
     # fraction we use the relative standard deviation, 
     # for fold change we use confidence interval
-    if (input$UserYVariable=="rel_intensity") error='CI'
-    else error='CV'
+    if (input$UserYVariable == "rel_intensity") error = 'CI'
+    else error = 'CV'
     
     plot <- plot +
     as.layer(
@@ -331,15 +355,15 @@ server <- shinyServer(function(input, output) {
         logfun(get(input$UserYVariable)*(1-get(error))) ~
         factor(get(input$UserXVariable)) |
         factor(get(input$UserCondVariable)),
-        subset(data(), protein %in% filtGenes),
-        panel=function(x, y, ...) {
-          panel.segments(x0=as.numeric(x), x1=as.numeric(x), 
-            y0=y[1:(length(y)/2)], y1=y[(length(y)/2+1):length(y)], 
-            col=grey(0.6, alpha=0.3), lwd=1.5)
+        subset(data(), protein %in% filtGenes()),
+        panel = function(x, y, ...) {
+          panel.segments(x0 = as.numeric(x), x1 = as.numeric(x), 
+            y0 = y[1:(length(y)/2)], y1 = y[(length(y)/2+1):length(y)], 
+            col = grey(0.6, alpha = 0.3), lwd = 1.5)
           panel.key(
-            {if (input$UserYVariable=="rel_intensity") "+/- 95% CI" else "+/- STDEV"}, 
-            which.panel=1, corner=c(0.05, 0.05), 
-            lines=FALSE, points=FALSE, col=grey(0.6), cex=0.7
+            {if (input$UserYVariable == "rel_intensity") "+/- 95% CI" else "+/- STDEV"}, 
+            which.panel = 1, corner = c(0.05, 0.05), 
+            lines = FALSE, points = FALSE, col = grey(0.6), cex = 0.7
           )
         }
       )
@@ -347,226 +371,145 @@ server <- shinyServer(function(input, output) {
     
     # print plot to output panel
     print(plot)
-    
-    output$UserDownloadDotplot <- downloadHandler(
-      filename="dotplot.svg",
-      content = function(file) {
-        svg(file, 
-          width={if (input$UserPrintWidth=="auto") 7
-            else as.numeric(input$UserPrintWidth)/100}, 
-          height=as.numeric(input$UserPrintHeight)/100)
-        print(plot)
-        dev.off()
-      },
-      contentType="image/svg"
-    )
+    # download function
+    output$UserDownloadDotplot <- getDownload(filename = "dotplot.svg", plot = plot)
     
   })
   
   # PLOT DATA USING BWPLOT FROM LATTICE
-  output$box_chart <- renderPlot(res=120, {
+  output$box_chart <- renderPlot(res = 120, {
     
-    # filter data by user choices
-    filtGenes <- get_selected(input$tree, format="names") %>% 
-      unlist %>%
-      subset(., grepl("3*[a-z]4*[0-9]", .))
-    
-    
-    # apply log or lin transfomration to orig data
-    logfun <- function(x) {
-      if (input$UserLogY=="linear") x
-      else if(input$UserLogY=="log 2") log2(x)
-      else if(input$UserLogY=="log 10") log10(x)
-      else log(x)
-    }
-    
-    
-    # select theme
-     if (input$UserTheme=="ggplot1") theme <- ggplot2like()
-     else if (input$UserTheme=="ggplot2") theme <- custom.ggplot
-     else if (input$UserTheme=="lattice grey") theme <- custom.lattice
-     else if (input$UserTheme=="lattice blue") theme <- theEconomist.theme()
-    
-    
-    # Actual plot of gene expression is drawn
+    # plot of gene expression is drawn
     plot <- bwplot(logfun(get(input$UserYVariable)) ~ factor(get(input$UserXVariable)) | 
         factor(get(input$UserCondVariable)), 
-      subset(data(), protein %in% filtGenes),
-      auto.key=FALSE, pch="|",
-      par.settings=theme,
-      layout={
-        if (input$UserPanelLayout=="manual") {
+      subset(data(), protein %in% filtGenes()),
+      auto.key = FALSE, pch = "|",
+      par.settings = theme(),
+      layout = {
+        if (input$UserPanelLayout == "manual") {
         c(input$UserPanelLayoutCols, input$UserPanelLayoutRows)}
         else NULL},
-      as.table=TRUE,
-      scales=list(alternating=FALSE, x=list(rot=45)),
-      xlab=input$UserXVariable,
-      ylab=paste0(input$UserYVariable, " (", input$UserLogY, ")"),
-      panel=function(x, y, ...) {
-        if (input$UserTheme=="ggplot2")
-          panel.grid(h=-1, v=-1, col="white")
+      as.table = TRUE,
+      scales = list(alternating = FALSE, x = list(rot = 45)),
+      xlab = input$UserXVariable,
+      ylab = paste0(input$UserYVariable, " (", input$UserLogY, ")"),
+      panel = function(x, y, ...) {
+        if (input$UserTheme == "ggplot2")
+          panel.grid(h = -1, v = -1, col = "white")
         else
-          panel.grid(h=-1, v=-1, col=grey(0.9))
-        panel.stripplot(x, y, jitter=TRUE, factor=0.75, pch=19, col=grey(0.75))
+          panel.grid(h = -1, v = -1, col = grey(0.9))
+        panel.stripplot(x, y, jitter = TRUE, factor = 0.75, pch = 19, col = grey(0.75))
         panel.bwplot(x, y, ...)
       }
     )
     
     # print plot to output panel
     print(plot)
-     
-    output$UserDownloadBoxplot <- downloadHandler(
-      filename="boxplot.svg",
-      content = function(file) {
-        svg(file, 
-          width={if (input$UserPrintWidth=="auto") 7
-            else as.numeric(input$UserPrintWidth)/100}, 
-          height=as.numeric(input$UserPrintHeight)/100)
-        print(plot)
-        dev.off()
-      },
-      contentType="image/svg"
+    # download function
+    output$UserDownloadDotplot <- getDownload(filename = "boxplot.svg", plot = plot)
+    
+  })
+  
+  
+  # PLOT DATA USING VIOLINPLOT FROM LATTICE
+  output$violinplot <- renderPlot(res = 120, {
+    
+    # plot of gene expression is drawn
+    plot <- bwplot(logfun(get(input$UserYVariable)) ~ factor(get(input$UserXVariable)) | 
+        factor(get(input$UserCondVariable)), 
+      subset(data(), protein %in% filtGenes()),
+      auto.key = FALSE, par.settings = theme(),
+      layout = {
+        if (input$UserPanelLayout == "manual") {
+        c(input$UserPanelLayoutCols, input$UserPanelLayoutRows)}
+        else NULL},
+      as.table = TRUE,
+      scales = list(alternating = FALSE, x = list(rot = 45)),
+      xlab = input$UserXVariable,
+      ylab = paste0(input$UserYVariable, " (", input$UserLogY, ")"),
+      panel = function(x, y, ...) {
+        if (input$UserTheme == "ggplot2")
+          panel.grid(h = -1, v = -1, col = "white")
+        else
+          panel.grid(h = -1, v = -1, col = grey(0.9))
+        panel.violin(x, y, alpha = 0.5, bw = 0.2, ...)
+      }
     )
+    
+    # print plot to output panel
+    print(plot)
+    # download function
+    output$UserDownloadDotplot <- getDownload(filename = "violinplot.svg", plot = plot)
     
   })
   
   
   # PLOT DATA AS HEATMAP WITH LEVELPLOT
   # some options for dotplot do not apply here
-  output$heatmap <- renderPlot(res=120, {
+  output$heatmap <- renderPlot(res = 120, {
     
-    # filter data by user choices
-    filtGenes <- get_selected(input$tree, format="names") %>% 
-      unlist %>%
-      subset(., grepl("3*[a-z]4*[0-9]", .))
-    
-    
-    # set log or lin flag and scale data on the fly
-    logfun <- function(x) {
-      if (input$UserLogY=="linear") x
-      else if(input$UserLogY=="log 2") log2(x)
-      else if(input$UserLogY=="log 10") log10(x)
-      else log(x)
-    }
-    
-    
-    # select theme
-     if (input$UserTheme=="ggplot1") theme <- ggplot2like()
-     else if (input$UserTheme=="ggplot2") theme <- custom.ggplot
-     else if (input$UserTheme=="lattice grey") theme <- custom.lattice
-     else if (input$UserTheme=="lattice blue") theme <- theEconomist.theme()
-    
-    
-    # Actual plot of gene expression is drawn
+    # plot of gene expression is drawn
     plot <- levelplot(logfun(get(input$UserYVariable)) ~ 
         as.factor(get(input$UserXVariable)) * 
         as.factor(protein),
-      subset(data(), protein %in% filtGenes),
-      auto.key=FALSE,
-      par.settings=theme, 
-      as.table=TRUE,
-      scales=list(alternating=FALSE, x=list(rot=45)),
-      xlab=input$UserXVariable,
-      ylab="protein"
+      subset(data(), protein %in% filtGenes()),
+      auto.key = FALSE,
+      par.settings = theme(), 
+      as.table = TRUE,
+      scales = list(alternating = FALSE, x = list(rot = 45)),
+      xlab = input$UserXVariable,
+      ylab = "protein"
     )
     
     # print plot to output panel
     print(plot)
-     
-    output$UserDownloadHeat <- downloadHandler(
-      filename="heatmap.svg",
-      content = function(file) {
-        svg(file, 
-          width={if (input$UserPrintWidth=="auto") 7
-            else as.numeric(input$UserPrintWidth)/100}, 
-          height=as.numeric(input$UserPrintHeight)/100)
-        print(plot)
-        dev.off()
-      },
-      contentType="image/svg"
-    )
+    # download function
+    output$UserDownloadDotplot <- getDownload(filename = "heatmap.svg", plot = plot)
     
   })
   
   
   # PLOT CLUSTERING
   # some options for dotplot do not apply here
-  output$clustering <- renderPlot(res=120, {
-    
-    # filter data by user choices
-    filtGenes <- get_selected(input$tree, format="names") %>% 
-      unlist %>%
-      subset(., grepl("3*[a-z]4*[0-9]", .))
-    
-    # set log or lin flag and scale data on the fly
-    logfun <- function(x) {
-      if (input$UserLogY=="linear") x
-      else if(input$UserLogY=="log 2") log2(x)
-      else if(input$UserLogY=="log 10") log10(x)
-      else log(x)
-    }
+  output$clustering <- renderPlot(res = 120, {
     
     # filter data by selected genes and
     # coerce data to matrix that is required for clustering
-    mat <- subset(data(), protein %in% filtGenes)
+    mat <- subset(data(), protein %in% filtGenes())
     mat <- spread(mat[c("protein", "condition", input$UserYVariable)], condition, get(input$UserYVariable))
-    
     
     # adjust rownames to genes and apply optional logging
     rownames(mat) <- mat[, 1]
     mat <- logfun(mat[,-1])
     
-    
     # compute dissimilarity matrix using hclust
     # for the clustering algorithm, see hclust manual
     prot.cluster <- hclust(dist(mat), method = "ward.D")
     # plot the cluster
-    clust <- plot(
-      color_branches(
-        prot.cluster,
-        k=input$UserNClust,
-        groupLabels=TRUE,
-        col=colorRampPalette(custom.lattice$superpose.polygon$col)(input$UserNClust)
-      )
-    )
-    
-    # print plot to output panel
-    print(clust)
-    
-    
-    # output$UserDownloadCluster <- downloadHandler(
-    #   filename="clustering.svg",
-    #   content = function(file) {
-    #     svg(file, 
-    #       width={if (input$UserPrintWidth=="auto") 7
-    #         else as.numeric(input$UserPrintWidth)/100}, 
-    #       height=as.numeric(input$UserPrintHeight)/100)
-    #     clust
-    #     dev.off()
-    #   },
-    #   contentType="image/svg"
-    # )
+    plot(color_branches(
+      prot.cluster,
+      k = input$UserNClust,
+      groupLabels = TRUE,
+      col = colorRampPalette(custom.lattice$superpose.polygon$col)(input$UserNClust)
+    ))
     
   })
   
-  output$table <- renderTable(digits=4, {
+  output$table <- renderTable(digits = 4, {
     
     # RENDER TABLE WITH QUANTITIES OF SELECTED PROTEINS
     # ***********************************************
     
     # filter data by user choices
-    filtGenes <- get_selected(input$tree, format="names") %>% 
-      unlist %>%
-      subset(., grepl("3*[a-z]4*[0-9]", .))
-    data <- subset(data(), protein %in% filtGenes)
+    data <- subset(data(), protein %in% filtGenes())
     
-    # download handler triggered by button
+    # download handler for table
     output$UserDownloadTable <- downloadHandler(
-      filename="data.csv",
-      content=function(file) {
+      filename = "data.csv",
+      content = function(file) {
         write.csv(data, file)
       },
-      contentType="text/csv"
+      contentType = "text/csv"
     )
     
     # call table to be rendered
@@ -577,5 +520,5 @@ server <- shinyServer(function(input, output) {
 })
 
 # Run the application 
-shinyApp(ui=ui, server=server)
+shinyApp(ui = ui, server = server)
 
