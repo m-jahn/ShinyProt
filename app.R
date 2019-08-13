@@ -260,7 +260,7 @@ server <- shinyServer(function(input, output) {
   output$tree <- renderTree({
      
     # select only some columns for construction of tree
-    cols <- c("Process.abbr", "Pathway.abbr", "protein","Protein")
+    cols <- c("Process.abbr", "Pathway.abbr", "protein", "Protein")
     # remove duplicated proteins
     prot <- data()[!duplicated(data()$protein), cols]
     

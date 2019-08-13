@@ -1,0 +1,12 @@
+name: ShinyProt
+title: ShinyProt
+username:
+account: m-jahn
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 378576
+bundleId: 2110934
+url: https://m-jahn.shinyapps.io/ShinyProt/
+when: 1558951659.19224
+asMultiple: FALSE
+asStatic: FALSE
