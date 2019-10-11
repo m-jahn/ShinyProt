@@ -98,7 +98,8 @@ ui <- shinyUI(navbarPage(
           column(width = 4, 
             selectInput("UserYVariable", 
               "Y variable:", choices = list("rel_intensity", "mean_intensity", "median_intensity", 
-                  "mean_mass_fraction_norm"),
+                  "mean_mass_fraction_norm", "mass_g_per_gDCW", "mol_fraction", "conc_g_per_L_cell_vol",
+                  "conc_mol_per_cell", "conc_mol_per_L_cell_vol", "conc_copies_per_cell"),
               selected = "rel_intensity")
           ),
           column(width = 4, 
@@ -184,7 +185,8 @@ ui <- shinyUI(navbarPage(
   tabPanel("About", 
     # THE SAME OR A BIT EXTENDED HELP BOX AS IN SIDEBAR
     helpbox(width = 8),
-    fundbox(width = 8)
+    fundbox(width = 8),
+    methbox(width = 8)
   )
 
 ))
@@ -204,7 +206,7 @@ server <- shinyServer(function(input, output) {
     # filter columns by a set of allowed regular expressions
     data <- data[grep(pattern = "protein|condition|growthrate|mean_|median_|
       sd_|CV|CI|rel_intensity|psortB_loc|Process|Pathway|Protein|Length|
-      Helices|MolWeight|model.category", colnames(data))]
+      Helices|MolWeight|model.category|mass_g|mol_|conc_[gmc]", colnames(data))]
     data
     
   })
