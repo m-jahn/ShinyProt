@@ -13,14 +13,17 @@ Simply run the app at https://m-jahn.shinyapps.io/ShinyProt/!
 
 If you want to *run ShinyMC locally*, you need to have R (optionally also Rstudio) and some of its libraries installed, mainly:
 
-- shiny
-- shinythemes
-- lattice
-- latticeExtra
-- tidyr
-- plyr
+- `shiny`
+- `shinythemes`
+- `shinyTree`
+- `lattice`
+- `latticeExtra`
+- `tidyr`
+- `plyr`
+- `dendextend`
 
-Open `app.R` in RStudio and push the `Run App` button in Rstudio, done!
+Open `server.R` or `ui.R` in RStudio and push the `Run App` button in Rstudio, done!
+You can also run the app from R console, just call `runApp("path-to-ShinyProt)`.
 
 ### R Shiny based browser for gene expression data
 
@@ -29,6 +32,8 @@ Features:
 
 - Displays dot plots of gene expression data
 - Heatmaps, box and whisker plots, and clustering of proteins/genes by expression
+- Dendrogram of gene expression similarity
+- Sunburst treemaps (coming soon!)
 - The original data table can be filtered by pathways or single genes
 - Different variables can be plotted on X and Y axis, or used as conditioning variable (panel-view)
 - All charts are interactive R Shiny modules and can be adjusted by many parameters
@@ -37,9 +42,11 @@ Features:
 
 ShinyProt consists of a set of R scripts that determine the functionality.
 
-- `app.R` contains the main body of functions. It is devided into a GUI and a server part. The GUI contains the interactive modules such as sliders and check boxes. The server obtains input parameters from the GUI and adjusts the graphical output accordingly (changes charts on the fly)
+- `server.R` contains the main body of functions. The server obtains input parameters from the GUI and adjusts the graphical output accordingly (changes charts on the fly)
+- `ui.R` The GUI contains the interactive modules such as sliders and check boxes.
 - `custom.themes.R` contains a set of customized lattice themes
 - `custom.panel.functions.R` contains a set of custom lattice panel functions
+- `helpbox.R` Contains info boxes for help, contact, and background information
 
 ### Input data
 

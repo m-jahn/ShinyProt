@@ -77,17 +77,17 @@ methbox <- function(width = 6) {
           cells per L'),
         
         tags$li('Protein concentration (copies protein / cell). Simply multiply mol/cell by Avogadro constant
-          (1/mol)'),
-        
-        tags$li('Conversion factors needed for transformation:
-          1 gDCW/L culture = OD 4 (in-house measurement, Anfelt et al., Mircob Cell Fact, 2015); 
-          OD 4 = 25 * 10^10 cells/L (µ = 0.08; Du et al., Algal Research, 2016), so that:
-          N (1 gDCW) = 25 * 10^10 cells; 
-          V (1 cell) = 9 * 10^-15 L (µ = 0.08; Du et al., Algal Research, 2016); 
-          N (1 L cell volume) = 1/(9 * 10^-15) = 1.11111 * 10^14 cells; 
-          V (1 gDCW cells) = 25*10^10 cells * 9*10^-15 L/cell = 0.00225 L/gDCW = 2.25*10^-3 L/gDCW'
+          (1/mol)')
+      ),
+      p('Conversion factors needed for transformation:'),
+      tags$ul(
+        tags$li('1 gDCW/L culture = OD 4 (in-house measurement, Anfelt et al., Mircob Cell Fact, 2015)'),
+        tags$li('OD 4 = 25 * 10^10 cells/L (µ = 0.08; Du et al., Algal Research, 2016), so that:'),
+        tags$li('N (1 gDCW) = 25 * 10^10 cells'),
+        tags$li('V (1 cell) = 9 * 10^-15 L (µ = 0.08; Du et al., Algal Research, 2016)'),
+        tags$li('N (1 L cell volume) = 1/(9 * 10^-15) = 1.11111 * 10^14 cells'),
+        tags$li('V (1 gDCW cells) = 25*10^10 cells * 9*10^-15 L/cell = 0.00225 L/gDCW = 2.25*10^-3 L/gDCW')
         )
-      )
     )
   )
 }
