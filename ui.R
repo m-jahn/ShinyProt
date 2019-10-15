@@ -2,6 +2,7 @@
 # LOADING LIBRARIES
 # ***********************************************
 library(shiny)
+library(grid)
 library(lattice)
 library(latticeExtra)
 library(tidyr)
@@ -14,7 +15,7 @@ library(dendextend)
 # LOADING EXTERNAL FUNCTIONS AND DATA
 # ***********************************************
 for (Rfile in list.files(
-  pattern = "(functions|themes|box)\\.R$", full.names = TRUE)) {
+  pattern = "(functions|theme|box)\\.R$", full.names = TRUE)) {
   source(Rfile)
 }
 

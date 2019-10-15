@@ -44,8 +44,8 @@ ShinyProt consists of a set of R scripts that determine the functionality.
 
 - `server.R` contains the main body of functions. The server obtains input parameters from the GUI and adjusts the graphical output accordingly (changes charts on the fly)
 - `ui.R` The GUI contains the interactive modules such as sliders and check boxes.
-- `custom.themes.R` contains a set of customized lattice themes
-- `custom.panel.functions.R` contains a set of custom lattice panel functions
+- `custom_themes.R` contains a set of customized lattice themes
+- `custom_panel_functions.R` contains a set of custom lattice panel functions
 - `helpbox.R` Contains info boxes for help, contact, and background information
 
 ### Input data

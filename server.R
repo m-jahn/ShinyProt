@@ -44,8 +44,8 @@ server <- function(input, output) {
   # select theme
   theme <- reactive({
     if (input$UserTheme == "ggplot1") ggplot2like()
-    else if (input$UserTheme == "ggplot2") custom.ggplot
-    else if (input$UserTheme == "lattice grey") custom.lattice
+    else if (input$UserTheme == "ggplot2") custom.ggplot()
+    else if (input$UserTheme == "lattice grey") custom.lattice()
     else if (input$UserTheme == "lattice blue") theEconomist.theme()
   })
   
@@ -170,7 +170,7 @@ server <- function(input, output) {
             y0 = y[1:(length(y)/2)], y1 = y[(length(y)/2+1):length(y)], 
             col = grey(0.6, alpha = 0.3), lwd = 1.5)
           panel.key(
-            {if (input$UserYVariable == "rel_intensity") "+/- 95% CI" else "+/- STDEV"}, 
+            labels = {if (input$UserYVariable == "rel_intensity") "+/- 95% CI" else "+/- STDEV"}, 
             which.panel = 1, corner = c(0.05, 0.05), 
             lines = FALSE, points = FALSE, col = grey(0.6), cex = 0.7
           )
@@ -299,7 +299,7 @@ server <- function(input, output) {
       prot.cluster,
       k = input$UserNClust,
       groupLabels = TRUE,
-      col = colorRampPalette(custom.lattice$superpose.polygon$col)(input$UserNClust)
+      col = colorRampPalette(custom.lattice()$superpose.polygon$col)(input$UserNClust)
     ))
     
   })
