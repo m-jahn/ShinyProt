@@ -11,7 +11,7 @@ R Shiny based interface for monitoring bioreactors. **Available on [Shinyapps.io
 
 Simply run the app at https://m-jahn.shinyapps.io/ShinyProt/!
 
-If you want to *run ShinyMC locally*, you need to have R (optionally also Rstudio) and some of its libraries installed, mainly:
+If you want to *run ShinyProt locally*, you need to have R (optionally also Rstudio) and some of its libraries installed, mainly:
 
 - `shiny`
 - `shinythemes`
