@@ -8,22 +8,28 @@ server <- function(input, output) {
   # without re-reading every time
   data <- reactive({
     
-    # read csv tables of user selection
-    data <- read.csv(input$UserDataChoice, stringsAsFactors = FALSE)
-    # filter columns by a set of allowed regular expressions
-    data <- data[grep(pattern = "protein|condition|growthrate|mean_|median_|
-      sd_|CV|CI|rel_intensity|psortB_loc|Process|Pathway|Protein|Length|
-      Helices|MolWeight|model.category|mass_g|mol_|conc_[gmc]", colnames(data))]
-    data
-    
+    # read user selected data set
+    get(input$UserDataChoice) %>%
+      # coerce to base data.frame
+      ungroup %>% as.data.frame
   })
+  
+  # GENERIC DATA FILTERING
+  data_filt <- reactive({
+    
+    # filter data set
+    data() %>% filter(
+      protein %in% filtGenes()
+    )
+  
+  })
+  
   
   # SOME GLOBAL FUNCTIONS THAT ALL PLOTS USE
   # filter data by user choices
   filtGenes <- reactive({
     get_selected(input$tree, format = "names") %>% 
-      unlist %>%
-      subset(., grepl("3*[a-z]4*[0-9]", .))
+      unlist
   })
   
   # apply log or lin transformation to orig data
@@ -48,6 +54,23 @@ server <- function(input, output) {
     else if (input$UserTheme == "lattice grey") custom.lattice()
     else if (input$UserTheme == "lattice blue") theEconomist.theme()
   })
+  
+  # select layout
+  layout <- reactive({
+    if (input$UserPanelLayout == "manual") {
+      c(input$UserPanelLayoutCols, input$UserPanelLayoutRows)}
+    else NULL
+  })
+  
+  # select grouping variable
+  grouping <- reactive({
+    if (input$UserGrouping == "none") NULL
+    else if(input$UserGrouping == "by cond. variable") input$UserCondVariable
+    else if(input$UserGrouping == "by X variable") input$UserXVariable
+    else if(input$UserGrouping == "by Y variable") input$UserYVariable
+    else gsub("by ", "", input$UserGrouping)
+  })
+  
   
   # generic download handler for all download buttons
   getDownload <- function(filename, plot) {
@@ -119,63 +142,21 @@ server <- function(input, output) {
   # that is made for multifactorial data
   output$dotplot <- renderPlot(res = 120, {
     
-    # plot of gene expression is drawn
-    plot <- xyplot(logfun(get(input$UserYVariable)) ~ factor(get(input$UserXVariable)) | 
-        factor(get(input$UserCondVariable)), 
-      subset(data(), protein %in% filtGenes()),
-      groups = {
-        if (input$UserGrouping == "none") NULL
-        else if(input$UserGrouping == "by conditioning") get(input$UserCondVariable)
-        else if(input$UserGrouping == "by X variable") get(input$UserXVariable)
-        else if(input$UserGrouping == "by Y variable") {
-          get(input$UserYVariable) %>% logfun %>%
-          .bincode(., pretty(.))
-        }
-      },
-      auto.key = FALSE, type = type(),
-      par.settings = theme(),
-      layout = {
-        if (input$UserPanelLayout == "manual") {
-        c(input$UserPanelLayoutCols, input$UserPanelLayoutRows)} 
-        else NULL},
-      as.table = TRUE,
-      scales = list(alternating = FALSE, x = list(rot = 45)),
-      xlab = input$UserXVariable,
-      ylab = paste0(input$UserYVariable, " (", input$UserLogY, ")"),
-      panel = function(x, y, ...) {
-        if (input$UserTheme == "ggplot2") 
-          panel.grid(h = -1, v = -1, col = "white")
-        else 
-          panel.grid(h = -1, v = -1, col = grey(0.9))
-        panel.xyplot(x, y, ...)
-      }
-    )
-    
-    # optional addition of error margins, for mean, median, and mean mass 
-    # fraction we use the relative standard deviation, 
-    # for fold change we use confidence interval
-    if (input$UserYVariable == "rel_intensity") error = 'CI'
-    else error = 'CV'
-    
-    plot <- plot +
-    as.layer(
-      xyplot(
-        logfun(get(input$UserYVariable)*(1+get(error))) +
-        logfun(get(input$UserYVariable)*(1-get(error))) ~
-        factor(get(input$UserXVariable)) |
-        factor(get(input$UserCondVariable)),
-        subset(data(), protein %in% filtGenes()),
-        panel = function(x, y, ...) {
-          panel.segments(x0 = as.numeric(x), x1 = as.numeric(x), 
-            y0 = y[1:(length(y)/2)], y1 = y[(length(y)/2+1):length(y)], 
-            col = grey(0.6, alpha = 0.3), lwd = 1.5)
-          panel.key(
-            labels = {if (input$UserYVariable == "rel_intensity") "+/- 95% CI" else "+/- STDEV"}, 
-            which.panel = 1, corner = c(0.05, 0.05), 
-            lines = FALSE, points = FALSE, col = grey(0.6), cex = 0.7
-          )
-        }
-      )
+    # make plot and print
+    plot <- plot_dotplot(
+      x = input$UserXVariable,
+      y = input$UserYVariable,
+      cond_var = input$UserCondVariable,
+      groups = grouping(),
+      data = data_filt(),
+      logfun = logfun,
+      theme = theme(),
+      layout = layout(),
+      type = type(),
+      input = input,
+      plot_error = TRUE,
+      error = {if (input$UserYVariable %in% c("fold_change", "rel_intensity")) "CI"
+        else "CV"}
     )
     
     # print plot to output panel
@@ -215,7 +196,7 @@ server <- function(input, output) {
     # print plot to output panel
     print(plot)
     # download function
-    output$UserDownloadDotplot <- getDownload(filename = "boxplot.svg", plot = plot)
+    output$UserDownloadBoxplot <- getDownload(filename = "boxplot.svg", plot = plot)
     
   })
   
@@ -248,7 +229,7 @@ server <- function(input, output) {
     # print plot to output panel
     print(plot)
     # download function
-    output$UserDownloadDotplot <- getDownload(filename = "violinplot.svg", plot = plot)
+    output$UserDownloadViolinplot <- getDownload(filename = "violinplot.svg", plot = plot)
     
   })
   
@@ -257,23 +238,24 @@ server <- function(input, output) {
   # some options for dotplot do not apply here
   output$heatmap <- renderPlot(res = 120, {
     
-    # plot of gene expression is drawn
-    plot <- levelplot(logfun(get(input$UserYVariable)) ~ 
-        as.factor(get(input$UserXVariable)) * 
-        as.factor(protein),
-      subset(data(), protein %in% filtGenes()),
-      auto.key = FALSE,
-      par.settings = theme(), 
-      as.table = TRUE,
-      scales = list(alternating = FALSE, x = list(rot = 45)),
-      xlab = input$UserXVariable,
-      ylab = "protein"
+    # make plot and print
+    plot <- plot_heatmap(
+      x = input$UserXVariable,
+      y = "protein",
+      z = input$UserYVariable,
+      cond_var = NULL,
+      data = data_filt(),
+      logfun = logfun,
+      theme = theme(),
+      layout = layout(),
+      input = input,
+      rotate_x = 35
     )
     
     # print plot to output panel
     print(plot)
     # download function
-    output$UserDownloadDotplot <- getDownload(filename = "heatmap.svg", plot = plot)
+    output$UserDownloadHeatmap <- getDownload(filename = "heatmap.svg", plot = plot)
     
   })
   

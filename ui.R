@@ -1,28 +1,4 @@
-# 
-# LOADING LIBRARIES
-# ***********************************************
-library(shiny)
-library(grid)
-library(lattice)
-library(latticeExtra)
-library(tidyr)
-library(plyr)
-library(shinyTree)
-library(shinythemes)
-library(dendextend)
-
-
-# LOADING EXTERNAL FUNCTIONS AND DATA
-# ***********************************************
-for (Rfile in list.files(
-  pattern = "(functions|theme|box)\\.R$", full.names = TRUE)) {
-  source(Rfile)
-}
-
-# list of data files
-datalistfiles <- list.files("data", pattern = "\\.csv$", full.names = TRUE)
-
-
+#
 # SHINY UI
 # ***********************************************
 # Define user interface for application
@@ -44,42 +20,21 @@ ui <- navbarPage(
       sidebarPanel(width = 5,
         
         # SELECT DATA
-        selectInput("UserDataChoice",
-          "Choose data:", datalistfiles, 
-          selected = datalistfiles[1]),
+        # -------------------
+        # select data file
+        h4("DATA OPTIONS"),
+        
+        fluidRow(
+          column(width = 12, 
+            selectInput("UserDataChoice",
+              "Choose data:", datalistfiles, 
+              selected = datalistfiles[1])
+          )
+        ),
         
         # SELECT PLOT OPTIONS
         hr(),
         h4("PLOT OPTIONS"),
-        fluidRow(
-          
-          # PANEL LAYOUT AND PLOT DIMESNIONS
-          column(width = 4, 
-            selectInput("UserPanelLayout", 
-              "Panel layout:", choices = list("automatic", "manual"),
-              selected = "automatic")
-          ),
-          column(width = 2, 
-            conditionalPanel(condition = "input.UserPanelLayout == 'manual'",
-              numericInput("UserPanelLayoutCols", 
-                "Columns:", value = 4)
-            )
-          ),
-          column(width = 2, 
-            conditionalPanel(condition = "input.UserPanelLayout == 'manual'",
-              numericInput("UserPanelLayoutRows", 
-              "Rows:", value = 4)
-            )
-          ),
-          column(width = 2, 
-            selectInput("UserPrintHeight",
-              "Plot height:", choices = c(1:10*100), selected = 700)
-          ),
-          column(width = 2, 
-            selectInput("UserPrintWidth",
-              "Plot width:", choices = c("auto", 1:10*100), selected = "auto")
-          )
-        ),
         
         fluidRow(
           
@@ -107,7 +62,7 @@ ui <- navbarPage(
         
         fluidRow(
           
-          # OTHER GRAPHICAL PLOT OPTIONS
+          # DATA GROUPING OPTIONS
           column(width = 3, 
             selectInput("UserTheme", 
               "Theme:", choices = list("lattice grey", "lattice blue", "ggplot1", "ggplot2"),
@@ -115,8 +70,9 @@ ui <- navbarPage(
           ),
           column(width = 3, 
             selectInput("UserGrouping", 
-              "Color coding:", choices = list("none", "by conditioning", "by X variable", "by Y variable"),
-              selected = "by conditioning")
+              "Grouping:", choices = list("none", "by cond. variable", "by X variable", 
+                  "by Y variable", "by condition", "by light", "by co2_concentration"),
+              selected = "by cond. variable")
           ),
           column(width = 3, 
             selectInput("UserPlotType", 
@@ -130,6 +86,35 @@ ui <- navbarPage(
           )
         ),
         
+        fluidRow(
+          
+          # PANEL LAYOUT AND PLOT DIMENSIONS
+          column(width = 4, 
+            selectInput("UserPanelLayout", 
+              "Panel layout:", choices = list("automatic", "manual"),
+              selected = "automatic")
+          ),
+          column(width = 2, 
+            conditionalPanel(condition = "input.UserPanelLayout == 'manual'",
+              numericInput("UserPanelLayoutCols", 
+                "Columns:", value = 4)
+            )
+          ),
+          column(width = 2, 
+            conditionalPanel(condition = "input.UserPanelLayout == 'manual'",
+              numericInput("UserPanelLayoutRows", 
+              "Rows:", value = 4)
+            )
+          ),
+          column(width = 2, 
+            selectInput("UserPrintHeight",
+              "Plot height:", choices = c(1:10*100), selected = 700)
+          ),
+          column(width = 2, 
+            selectInput("UserPrintWidth",
+              "Plot width:", choices = c("auto", 1:10*100), selected = "auto")
+          )
+        ),
         
         hr(),
         fluidRow(
@@ -162,7 +147,7 @@ ui <- navbarPage(
               downloadButton("UserDownloadViolinplot", "Download svg")
             ),
             tabPanel("HEAT MAP", uiOutput("heatmap.ui"),
-              downloadButton("UserDownloadHeat", "Download svg")
+              downloadButton("UserDownloadHeatmap", "Download svg")
             ),
             tabPanel("CLUSTERING", uiOutput("clustering.ui"),
               numericInput("UserNClust", label = "N cluster", value = 4, step = 1)
