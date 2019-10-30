@@ -43,6 +43,10 @@ custom.lattice <- function() {
   theme$add.text$cex <- 0.8
   theme$par.main.text$cex <- 1
   theme$box.umbrella$lty <- 1
+  theme$box.umbrella$lwd <- 1.5
+  theme$box.umbrella$col <- grey(0.4)
+  theme$box.rectangle$lwd <- 1.5
+  theme$box.rectangle$col <- grey(0.4)
   theme$par.main.text$font <- 1
   theme
 }

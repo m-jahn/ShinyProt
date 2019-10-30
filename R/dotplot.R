@@ -20,7 +20,7 @@ plot_dotplot <- function(
     }
     
     # determine number of columns for group legend
-    if (length(unique(data[[groups]])) <= 20) {
+      if (length(unique(data[[groups]])) <= 16) {
       ncol_legend <- length(unique(data[[groups]])) %>%
         replace(., . > 4, 4)
     } else {
@@ -80,7 +80,7 @@ plot_dotplot <- function(
           panel.key(
             labels = paste("+/-", error),
             which.panel = 1, corner = c(0.05, 0.05), 
-            lines = FALSE, points = FALSE, col = grey(0.6), cex = 0.7
+            points = FALSE, col = grey(0.6), cex = 0.7
           )
         }
       )
@@ -88,6 +88,7 @@ plot_dotplot <- function(
   
   }
   
+  # return final plot
   plot
   
 }
