@@ -5,8 +5,9 @@ account: m-jahn
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 378576
-bundleId: 2502425
+bundleId: 2550748
 url: https://m-jahn.shinyapps.io/ShinyProt/
-when: 1571154629.91586
+when: 1572428136.08065
 asMultiple: FALSE
 asStatic: FALSE
+ignoredFiles: data/Jahn_2018_Light_and_CO2_lim.csv|data/Jahn_2018_Pertubations.csv

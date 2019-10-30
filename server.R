@@ -170,27 +170,17 @@ server <- function(input, output) {
   output$box_chart <- renderPlot(res = 120, {
     
     # plot of gene expression is drawn
-    plot <- bwplot(logfun(get(input$UserYVariable)) ~ factor(get(input$UserXVariable)) | 
-        factor(get(input$UserCondVariable)), 
-      subset(data(), protein %in% filtGenes()),
-      auto.key = FALSE, pch = "|",
-      par.settings = theme(),
-      layout = {
-        if (input$UserPanelLayout == "manual") {
-        c(input$UserPanelLayoutCols, input$UserPanelLayoutRows)}
-        else NULL},
-      as.table = TRUE,
-      scales = list(alternating = FALSE, x = list(rot = 45)),
-      xlab = input$UserXVariable,
-      ylab = paste0(input$UserYVariable, " (", input$UserLogY, ")"),
-      panel = function(x, y, ...) {
-        if (input$UserTheme == "ggplot2")
-          panel.grid(h = -1, v = -1, col = "white")
-        else
-          panel.grid(h = -1, v = -1, col = grey(0.9))
-        panel.stripplot(x, y, jitter = TRUE, factor = 0.75, pch = 19, col = grey(0.75))
-        panel.bwplot(x, y, ...)
-      }
+    plot <- plot_boxplot(
+       x = input$UserXVariable,
+      y = input$UserYVariable,
+      cond_var = input$UserCondVariable,
+      groups = grouping(),
+      data = data_filt(),
+      logfun = logfun,
+      theme = theme(),
+      layout = layout(),
+      type = "boxplot",
+      input = input
     )
     
     # print plot to output panel
@@ -205,25 +195,17 @@ server <- function(input, output) {
   output$violinplot <- renderPlot(res = 120, {
     
     # plot of gene expression is drawn
-    plot <- bwplot(logfun(get(input$UserYVariable)) ~ factor(get(input$UserXVariable)) | 
-        factor(get(input$UserCondVariable)), 
-      subset(data(), protein %in% filtGenes()),
-      auto.key = FALSE, par.settings = theme(),
-      layout = {
-        if (input$UserPanelLayout == "manual") {
-        c(input$UserPanelLayoutCols, input$UserPanelLayoutRows)}
-        else NULL},
-      as.table = TRUE,
-      scales = list(alternating = FALSE, x = list(rot = 45)),
-      xlab = input$UserXVariable,
-      ylab = paste0(input$UserYVariable, " (", input$UserLogY, ")"),
-      panel = function(x, y, ...) {
-        if (input$UserTheme == "ggplot2")
-          panel.grid(h = -1, v = -1, col = "white")
-        else
-          panel.grid(h = -1, v = -1, col = grey(0.9))
-        panel.violin(x, y, alpha = 0.5, bw = 0.2, ...)
-      }
+    plot <- plot_boxplot(
+       x = input$UserXVariable,
+      y = input$UserYVariable,
+      cond_var = input$UserCondVariable,
+      groups = grouping(),
+      data = data_filt(),
+      logfun = logfun,
+      theme = theme(),
+      layout = layout(),
+      type = "violin",
+      input = input
     )
     
     # print plot to output panel
