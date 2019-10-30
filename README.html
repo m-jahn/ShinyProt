@@ -372,7 +372,7 @@ summary {
 <div id="getting-started" class="section level3">
 <h3>Getting started</h3>
 <p>Simply run the app at <a href="https://m-jahn.shinyapps.io/ShinyProt/" class="uri">https://m-jahn.shinyapps.io/ShinyProt/</a>!</p>
-<p>If you want to <em>run ShinyMC locally</em>, you need to have R (optionally also Rstudio) and some of its libraries installed, mainly:</p>
+<p>If you want to <em>run ShinyProt locally</em>, you need to have R (optionally also Rstudio) and some of its libraries installed, mainly:</p>
 <ul>
 <li><code>shiny</code></li>
 <li><code>shinythemes</code></li>
@@ -404,6 +404,7 @@ summary {
 <ul>
 <li><code>server.R</code> contains the main body of functions. The server obtains input parameters from the GUI and adjusts the graphical output accordingly (changes charts on the fly)</li>
 <li><code>ui.R</code> The GUI contains the interactive modules such as sliders and check boxes.</li>
+<li><code>dotplot.R</code>, <code>heatmap.R</code>, and others are plotting functions for each tab</li>
 <li><code>custom_themes.R</code> contains a set of customized lattice themes</li>
 <li><code>custom_panel_functions.R</code> contains a set of custom lattice panel functions</li>
 <li><code>helpbox.R</code> Contains info boxes for help, contact, and background information</li>
@@ -422,23 +423,23 @@ summary {
 <div id="how-protein-quantifications-were-obtained" class="section level4">
 <h4>How protein quantifications were obtained</h4>
 <ul>
-<li>Protein quantity was aggregated from MS-based label-free peptide measurements using the sum of all peptide abundances. This relative number was divided by the sum of all protein abundances resulting in protein mass fraction (not mol fraction), the main metric used in <strong><a href="https://www.sciencedirect.com/science/article/pii/S2211124718314852?via%3Dihub">Jahn et al., Cell Reports, 2018</a></strong>. However this metric can be used, together with some ‘helper’ parameters to convert protein mass in to mol fraction, molecules per cell, molecules oper volume, and others.</li>
+<li>Protein quantity was aggregated from MS-based label-free peptide measurements using the sum of all peptide abundances. This relative number was divided by the sum of all protein abundances resulting in protein mass fraction (not mol fraction), the main metric used in <strong><a href="https://www.sciencedirect.com/science/article/pii/S2211124718314852?via%3Dihub">Jahn et al., Cell Reports, 2018</a></strong>. However this metric can be used, together with some ‘helper’ parameters to convert protein mass in to mol fraction, molecules per cell, molecules per volume, and others.</li>
 </ul>
 </div>
 <div id="how-other-protein-metrics-were-calculated" class="section level4">
 <h4>How other protein metrics were calculated</h4>
 <ul>
-<li><p><strong>Protein mass in g/gDCW</strong>. This is simply the protein mass fraction (g/g) multiplied by protein content per DCW (on average 65%, Touloupakis et al., Biotechnology for Biofuels, 2015)</p></li>
+<li><p><strong>Protein mass in g/gDCW</strong>. This is simply the protein mass fraction (g/g) multiplied by protein content per DCW (on average 65%, <em>Touloupakis et al., Biotechnology for Biofuels, 2015</em>)</p></li>
 <li><p><strong>Mol fraction of proteins</strong> (number of protein as fraction of total protein number). Divide mass fraction (g/g) by molar mass (g/mol), and divide every protein mol by sum of mol.</p></li>
 <li><p><strong>Protein mass in g/L cell volume</strong>. Here is an extra parameter required, the cell volume in L/gDCW (NB: not culture volume!).</p></li>
 <li><p><strong>Protein concentration (mol protein / cell)</strong>. That is protein mass fraction in g/gDCW multiplied with gDCW/cell, divided by molar mass in g/mol</p></li>
 <li><p><strong>Protein concentration (mol protein / L cell volume)</strong>. Multiply mol protein per cell with N cells per L</p></li>
 <li><p><strong>Protein concentration (copies protein / cell)</strong>. Simply multiply mol/cell by Avogadro constant (1/mol)</p></li>
 <li><p><strong>Conversion factors needed for transformation:</strong></p>
-<p>1 gDCW/L culture = OD 4 (in-house measurement, Anfelt et al., Mircob Cell Fact, 2015)</p>
-<p>OD 4 = 25 * 10^10 cells/L (µ = 0.08; Du et al., Algal Research, 2016), so that</p>
+<p>1 gDCW/L culture = OD 4 (in-house measurement, <em>Anfelt et al., Microb Cell Fact, 2015</em>)</p>
+<p>OD 4 = 25 * 10^10 cells/L (µ = 0.08; <em>Du et al., Algal Research, 2016</em>), so that</p>
 <p>N (1 gDCW) = 25 * 10^10 cells</p>
-<p>V (1 cell) = 9 * 10^-15 L (µ = 0.08; Du et al., Algal Research, 2016)</p>
+<p>V (1 cell) = 9 * 10^-15 L (µ = 0.08; <em>Du et al., Algal Research, 2016</em>)</p>
 <p>N (1 L cell volume) = 1/(9 * 10^-15) = 1.11111 * 10^14 cells</p>
 <p>V (1 gDCW cells) = 25<em>10^10 cells </em> 9<em>10^-15 L/cell = 0.00225 L/gDCW = 2.25</em>10^-3 L/gDCW</p></li>
 </ul>

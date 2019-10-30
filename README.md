@@ -1,6 +1,7 @@
 # ShinyProt
 
-R Shiny based interface for monitoring bioreactors. **Available on [Shinyapps.io](https://m-jahn.shinyapps.io/ShinyProt/)!**
+R Shiny based interface for monitoring bioreactors. 
+**Available on [Shinyapps.io](https://m-jahn.shinyapps.io/ShinyProt/)!**
 
 <img src="example.png" width="800px" style="display: block; margin: auto;" />
 
@@ -44,6 +45,7 @@ ShinyProt consists of a set of R scripts that determine the functionality.
 
 - `server.R` contains the main body of functions. The server obtains input parameters from the GUI and adjusts the graphical output accordingly (changes charts on the fly)
 - `ui.R` The GUI contains the interactive modules such as sliders and check boxes.
+- `dotplot.R`, `heatmap.R`, and others are plotting functions for each tab
 - `custom_themes.R` contains a set of customized lattice themes
 - `custom_panel_functions.R` contains a set of custom lattice panel functions
 - `helpbox.R` Contains info boxes for help, contact, and background information
@@ -63,12 +65,12 @@ ShinyProt consists of a set of R scripts that determine the functionality.
 of all peptide abundances. This relative number was divided by the sum of all protein abundances
 resulting in protein mass fraction (not mol fraction), the main metric used in 
 **[Jahn et al., Cell Reports, 2018](https://www.sciencedirect.com/science/article/pii/S2211124718314852?via%3Dihub)**. However this metric can be used, together with some 'helper' parameters to convert
-protein mass in to mol fraction, molecules per cell, molecules oper volume, and others.
+protein mass in to mol fraction, molecules per cell, molecules per volume, and others.
 
 #### How other protein metrics were calculated
 
 - **Protein mass in g/gDCW**. This is simply the protein mass fraction (g/g) multiplied by
-  protein content per DCW (on average 65%, Touloupakis et al., Biotechnology for Biofuels, 2015)
+  protein content per DCW (on average 65%, *Touloupakis et al., Biotechnology for Biofuels, 2015*)
 
 - **Mol fraction of proteins** (number of protein as fraction of total protein number).
   Divide mass fraction (g/g) by molar mass (g/mol), and divide every protein mol by sum of mol.
@@ -87,13 +89,13 @@ protein mass in to mol fraction, molecules per cell, molecules oper volume, and 
   
 - **Conversion factors needed for transformation:**
   
-  1 gDCW/L culture = OD 4 (in-house measurement, Anfelt et al., Mircob Cell Fact, 2015)
+  1 gDCW/L culture = OD 4 (in-house measurement, *Anfelt et al., Microb Cell Fact, 2015*)
   
-  OD 4 = 25 * 10^10 cells/L (µ = 0.08; Du et al., Algal Research, 2016), so that
+  OD 4 = 25 * 10^10 cells/L (µ = 0.08; *Du et al., Algal Research, 2016*), so that
   
   N (1 gDCW) = 25 * 10^10 cells
   
-  V (1 cell) = 9 * 10^-15 L (µ = 0.08; Du et al., Algal Research, 2016)
+  V (1 cell) = 9 * 10^-15 L (µ = 0.08; *Du et al., Algal Research, 2016*)
   
   N (1 L cell volume) = 1/(9 * 10^-15) = 1.11111 * 10^14 cells
   
