@@ -63,6 +63,14 @@ conc_copies_per_cell <- function(conc_mol_per_cell) {
   # unit: copies/cell
 }
 
+# not related to all above: 95 % confidence interval, relative to mean
+rel_CI = function(x) {
+  if (sum(is.na(x) > 2)) NA else {
+    ci = Rmisc::CI(x)
+    (ci[1]-ci[2])/ci[2]
+  }
+}
+
 
 # Modifications to csv
 # --------------------
@@ -75,7 +83,7 @@ df <- read_csv("data/Jahn-et-al-2018_Pertubations.csv") %>%
   group_by(condition)
 
 # check that grouping works, i.e. all mass fractions per condition sum to unity
-summarise(df, sum(mean_mass_fraction_norm))
+summarise(df, sum(mean_mass_fraction_norm, na.rm = TRUE))
 
 # apply transformations
 df_new <- df %>% 
@@ -96,7 +104,7 @@ df_new <- df %>%
 summarise(df_new, sum(mol_fraction, na.rm = TRUE))
 
 # check that g/gDCW sum to ~0.65
-summarise(df_new, sum(mass_g_per_gDCW))
+summarise(df_new, sum(mass_g_per_gDCW, na.rm = TRUE))
 
 # check min, max and sum of protein copies per condition
 summarise(df_new, 
