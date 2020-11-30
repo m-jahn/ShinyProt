@@ -1,6 +1,6 @@
 # ShinyProt
 
-R Shiny based interface for monitoring bioreactors. 
+R Shiny based web app for browsing proteomics data.
 **Available on [Shinyapps.io](https://m-jahn.shinyapps.io/ShinyProt/)!**
 
 <img src="example.png" width="800px" style="display: block; margin: auto;" />
@@ -70,7 +70,8 @@ protein mass in to mol fraction, molecules per cell, molecules per volume, and o
 #### How other protein metrics were calculated
 
 - **Protein mass in g/gDCW**. This is simply the protein mass fraction (g/g) multiplied by
-  protein content per DCW (on average 65%, *Touloupakis et al., Biotechnology for Biofuels, 2015*)
+  protein content per DCW (on average 65% for cyanobacteria, *Touloupakis et al., Biotechnology for Biofuels, 2015*, 
+  or 68% for *Cupriavidus neactor*, *Park et al., BMC Sys Biol, 2011.*
 
 - **Mol fraction of proteins** (number of protein as fraction of total protein number).
   Divide mass fraction (g/g) by molar mass (g/mol), and divide every protein mol by sum of mol.

@@ -12,10 +12,11 @@
 # --------------------
 #
 # - Protein mass in g/gDCW. This is simply the protein mass fraction (g/g) multiplied by
-#   protein content per DCW (on average 65%, Touloupakis et al., Biotechnology for Biofuels, 2015)
+#   protein content per gDCW (on average 65%, Touloupakis et al., Biotechnology for Biofuels, 2015,
+#   or 0.68 g/gDCW determined in Park et al., 2011)
 mass_g_per_gDCW <- function(mass_frac) {
   mass_frac <- replace(mass_frac, mass_frac < 0, 0)
-  mass_frac * 0.65 
+  mass_frac * 0.68 
   # unit: g/gDCW
 }
 
@@ -32,7 +33,7 @@ mol_fraction <- function(mass_frac, MW) {
 #   cell volume in L/gDCW (NB: not culture volume!).
 #   
 #   Conversion factors needed for transformation:
-#   1 gDCW/L culture = OD 4 (in-house measurement, Anfelt et al., Mircob Cell Fact, 2015)
+#   1 gDCW/L culture = OD 4 (in-house measurement, Anfelt et al., Microb Cell Fact, 2015)
 #   OD 4 = 25 * 10^10 cells/L (µ = 0.08; Du et al., Algal Research, 2016), so that
 #   
 #   N (1 gDCW) = 25 * 10^10 cells
@@ -72,47 +73,70 @@ rel_CI = function(x) {
 }
 
 
-# Modifications to csv
-# --------------------
+# Apply modifications to loaded data
+# ----------------------------------
 
 # load packages
-library(tidyverse)
+#library(tidyverse)
 
-# load original data
-df <- read_csv("data/Jahn-et-al-2018_Pertubations.csv") %>% 
-  group_by(condition)
-
-# check that grouping works, i.e. all mass fractions per condition sum to unity
-summarise(df, sum(mean_mass_fraction_norm, na.rm = TRUE))
-
-# apply transformations
-df_new <- df %>% 
+add_metrics <- function(df) {
   
-  mutate(
-    mass_g_per_gDCW = mass_g_per_gDCW(mean_mass_fraction_norm), 
-    mol_fraction = mol_fraction(mean_mass_fraction_norm, MolWeight), 
-    conc_g_per_L_cell_vol = conc_g_per_L_cell_vol(mass_g_per_gDCW),
-    conc_mol_per_cell = conc_mol_per_cell(mass_g_per_gDCW, MolWeight),
-    conc_mol_per_L_cell_vol = conc_mol_per_L_cell_vol(conc_mol_per_cell),
-    conc_copies_per_cell = conc_copies_per_cell(conc_mol_per_cell)
+  # check that grouping works, i.e. all mass fractions per condition sum to unity
+  summarise(df, sum(mean_mass_fraction_norm, na.rm = TRUE))
+  
+  # apply transformations
+  df_new <- df %>% 
+    
+    mutate(
+      mass_g_per_gDCW = mass_g_per_gDCW(mean_mass_fraction_norm), 
+      mol_fraction = mol_fraction(mean_mass_fraction_norm, MolWeight), 
+      conc_g_per_L_cell_vol = conc_g_per_L_cell_vol(mass_g_per_gDCW),
+      conc_mol_per_cell = conc_mol_per_cell(mass_g_per_gDCW, MolWeight),
+      conc_mol_per_L_cell_vol = conc_mol_per_L_cell_vol(conc_mol_per_cell),
+      conc_copies_per_cell = conc_copies_per_cell(conc_mol_per_cell)
+    )
+    
+  # Quality control
+  # --------------------
+  
+  # check that mol fractions sum to unity
+  summarise(df_new, sum(mol_fraction, na.rm = TRUE))
+  
+  # check that g/gDCW sum to ~0.65
+  summarise(df_new, sum(mass_g_per_gDCW, na.rm = TRUE))
+  
+  # check min, max and sum of protein copies per condition
+  summarise(df_new, 
+    min = min(conc_copies_per_cell, na.rm = TRUE),
+    max = max(conc_copies_per_cell, na.rm = TRUE),
+    sum = sum(conc_copies_per_cell, na.rm = TRUE)
   )
   
-# Quality control
-# --------------------
+  # optionally add other parameters like qS in mmol/gDCW
+  df_new <- df_new %>%
+    mutate(substrate_uptake_rate = 
+      case_when(
+        substrate == "formate" ~  (0.106 + 11.181 * growthrate)/0.04603,
+        substrate == "fructose" ~ (-0.014 + 2.228 * growthrate)/0.18016,
+        substrate == "succinate" ~ (0.009 + 2.186 * growthrate)/0.11809,
+        substrate == "ammonium" ~ (-0.021 + 0.624 * growthrate)/0.05349
+      )
+    )
+  
+  # check that all conditions have uptake rates
+  df_new %>% pull(substrate_uptake_rate) %>% unique
+  df_new
+  
+}
 
-# check that mol fractions sum to unity
-summarise(df_new, sum(mol_fraction, na.rm = TRUE))
+# load original data
+#df <- read_csv("data/...")
+#load("Ralstonia_eutropha.Rdata")
+#df <- Ralstonia_eutropha
 
-# check that g/gDCW sum to ~0.65
-summarise(df_new, sum(mass_g_per_gDCW, na.rm = TRUE))
-
-# check min, max and sum of protein copies per condition
-summarise(df_new, 
-  min = min(conc_copies_per_cell, na.rm = TRUE),
-  max = max(conc_copies_per_cell, na.rm = TRUE),
-  sum = sum(conc_copies_per_cell, na.rm = TRUE)
-)
+# apply function
+#Ralstonia_eutropha <- add_metrics(df)
 
 # Save results
-# --------------------
-#write_csv(df_new, "data/Jahn-et-al-2018_Pertubations.csv")
+#save(Ralstonia_eutropha, file = "Ralstonia_eutropha.Rdata")
+  
