@@ -1,0 +1,88 @@
+# variables to generate gene tree
+tree:
+  levels:
+    - Process.abbr
+    - Pathway.abbr
+    - protein
+    - Protein
+  gene_level:
+    - protein
+
+# main parameters to filter data
+data:
+  treatment:
+    values:
+      - DCMU
+      - GLC
+      - EYFP
+      - NT
+    selected:
+      - DCMU
+      - GLC
+      - EYFP
+      - NT
+  light:
+    values:
+      - 60
+      - 300
+    selected:
+      - 60
+      - 300
+
+# variables for plotting data
+plotting:
+  x_vars:
+    - condition
+    - light
+    - growthrate
+    - psortB_localization
+    - Process
+    - Pathway
+    - Protein
+  y_vars:
+    - rel_intensity
+    - mean_intensity
+    - median_intensity
+    - mean_mass_fraction_norm
+    - mass_g_per_gDCW
+    - mol_fraction
+    - conc_g_per_L_cell_vol
+    - conc_mol_per_cell
+    - conc_mol_per_L_cell_vol
+    - conc_copies_per_cell
+  cond_vars:
+    - protein
+    - condition
+    - growthrate
+    - psortB_localization
+    - Process
+    - Pathway
+    - Protein
+
+# default plot parameters
+default:
+  theme:
+    - lattice grey
+    - lattice blue
+    - ggplot1
+    - ggplot2
+  grouping:
+    - by cond. variable
+    - by X variable
+    - by Y variable
+    - by condition
+    - by light
+    - by co2_concentration
+    - none
+  plot_type:
+    - points
+    - lines
+    - points and lines
+  y_scale:
+    - linear
+    - log 2
+    - log 10
+    - log e
+  clustering:
+    x_var: protein
+    y_var: condition

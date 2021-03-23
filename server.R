@@ -16,14 +16,72 @@ server <- function(input, output) {
   
   # GENERIC DATA FILTERING
   data_filt <- reactive({
-    
-    # filter data set
-    data() %>% filter(
-      protein %in% filtGenes()
-    )
-  
+    # filter data set by gene selection
+    data <- data() %>% filter(get(config()$tree$gene_level) %in% filtGenes())
+    # filter data set by user input
+    for (filt in names(config()$data)) {
+      data <- filter(data, get(filt) %in% input[[paste0("Filter_", filt)]])
+    }
+    data
   })
   
+  # GET GLOBAL CONFIGURATION FOR CHOSEN DATASET
+  config <- reactive({data_config[[input$UserDataChoice]]})
+  
+  # DYNAMIC BOXES FOR DATA FILTERING
+  output$UserFilters <- renderUI({
+    lapply(names(config()$data), function(filt) {
+      selectInput(
+        inputId = paste0("Filter_", filt),
+        label = paste0(filt, ":"),
+        choices = config()$data[[filt]]$values,
+        selected = config()$data[[filt]]$selected,
+        multiple = TRUE)
+    })
+  })
+  
+  # DYNAMIC BOXES FOR DATA VIZ OPTIONS
+  output$UserXVariable <- renderUI({
+    selectInput("UserXVariable", 
+      "X variable:", config()$plotting$x_vars,
+      selected = config()$plotting$x_vars[1])
+  })
+  
+  output$UserYVariable <- renderUI({
+    selectInput("UserYVariable", 
+      "Y variable:", config()$plotting$y_vars,
+      selected = config()$plotting$y_vars[1])
+  })
+  
+  output$UserCondVariable <- renderUI({
+    selectInput("UserCondVariable", 
+      "Conditioning variable:", config()$plotting$cond_vars,
+      selected = config()$plotting$cond_vars[1])
+  })
+  
+  output$UserTheme <- renderUI({
+    selectInput("UserTheme", 
+      "Theme:", config()$default$theme,
+      selected = config()$default$theme[1])
+  })
+  
+  output$UserGrouping <- renderUI({
+    selectInput("UserGrouping", 
+      "Grouping:", config()$default$grouping,
+      selected = config()$default$grouping[1])
+  })
+  
+  output$UserPlotType <- renderUI({
+    selectInput("UserPlotType", 
+      "Plot type:", config()$default$plot_type,
+      selected = config()$default$plot_type[1])
+  })
+  
+  output$UserLogY <- renderUI({
+    selectInput("UserLogY", 
+      "Y scale:", config()$default$y_scale,
+      selected = config()$default$y_scale[1])
+  })
   
   # SOME GLOBAL FUNCTIONS THAT ALL PLOTS USE
   # filter data by user choices
@@ -91,10 +149,10 @@ server <- function(input, output) {
   # SHINY TREE
   output$tree <- renderTree({
      
-    # select only some columns for construction of tree
-    cols <- c("Process.abbr", "Pathway.abbr", "protein", "Protein")
     # remove duplicated proteins
-    prot <- data()[!duplicated(data()$protein), cols]
+    prot <- filter(data(), !duplicated(get(config()$tree$gene_level))) %>%
+      # select columns for construction of tree
+      select(all_of(config()$tree$levels))
     
     # generate list for tree using this recursive function
     makeTree <-function(rows, col, numcols) {
@@ -115,7 +173,7 @@ server <- function(input, output) {
   
    
   # PLOT AND TABLE UI OUTPUTS
-  #
+  # ***********************************************
   # To control size of the plots, we need to wrap plots
   # into additional renderUI function that can take height argument
   output$dotplot.ui <- renderUI({
@@ -223,7 +281,7 @@ server <- function(input, output) {
     # make plot and print
     plot <- plot_heatmap(
       x = input$UserXVariable,
-      y = "protein",
+      y = config()$tree$gene_level,
       z = input$UserYVariable,
       cond_var = NULL,
       data = data_filt(),
@@ -246,10 +304,11 @@ server <- function(input, output) {
   # some options for dotplot do not apply here
   output$clustering <- renderPlot(res = 120, {
     
-    # filter data by selected genes and
-    # coerce data to matrix that is required for clustering
-    mat <- subset(data(), protein %in% filtGenes())
-    mat <- spread(mat[c("protein", "condition", input$UserYVariable)], condition, get(input$UserYVariable))
+    mat <- data_filt() %>% select(all_of(c(
+        config()$default$clustering$x_var, 
+        config()$default$clustering$y_var,
+        input$UserYVariable))) %>%
+      spread(get(config()$default$clustering$y_var), get(input$UserYVariable))
     
     # adjust rownames to genes and apply optional logging
     rownames(mat) <- mat[, 1]
@@ -263,31 +322,28 @@ server <- function(input, output) {
       prot.cluster,
       k = input$UserNClust,
       groupLabels = TRUE,
-      col = colorRampPalette(custom.lattice()$superpose.polygon$col)(input$UserNClust)
+      col = colorRampPalette(theme()$superpose.polygon$col)(input$UserNClust)
     ))
     
   })
   
+  
+  # RENDER TABLE WITH QUANTITIES OF SELECTED PROTEINS
+  # ***********************************************
   output$table <- renderTable(digits = 4, {
-    
-    # RENDER TABLE WITH QUANTITIES OF SELECTED PROTEINS
-    # ***********************************************
-    
-    # filter data by user choices
-    data <- subset(data(), protein %in% filtGenes())
     
     # download handler for table
     output$UserDownloadTable <- downloadHandler(
       filename = "data.csv",
       content = function(file) {
-        write.csv(data, file)
+        write.csv(data_filt(), file)
       },
       contentType = "text/csv"
     )
     
     # call table to be rendered
-    data
+    data_filt()
     
-    })
+  })
   
 }
