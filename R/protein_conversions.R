@@ -116,10 +116,10 @@ add_metrics <- function(df) {
   df_new <- df_new %>%
     mutate(substrate_uptake_rate = 
       case_when(
-        substrate == "formate" ~  (0.106 + 11.181 * growthrate)/0.04603,
-        substrate == "fructose" ~ (-0.014 + 2.228 * growthrate)/0.18016,
-        substrate == "succinate" ~ (0.009 + 2.186 * growthrate)/0.11809,
-        substrate == "ammonium" ~ (-0.021 + 0.624 * growthrate)/0.05349
+        substrate == "formate" ~  (0.004 + 11.236 * growthrate)/0.04603,
+        substrate == "fructose" ~ (0.003 + 2.898 * growthrate)/0.18016,
+        substrate == "succinate" ~ (0.0 + 3.937 * growthrate)/0.11809,
+        substrate == "ammonium" ~ (0.025 + 0.616 * growthrate)/0.05349
       )
     )
   
@@ -131,8 +131,8 @@ add_metrics <- function(df) {
 
 # load original data
 #df <- read_csv("data/...")
-#load("Ralstonia_eutropha.Rdata")
-#df <- Ralstonia_eutropha
+#load("Jahn_2021_Ralstonia_eutropha.Rdata")
+#Ralstonia_eutropha <- Jahn_2021_Ralstonia_eutropha
 
 # apply function
 #Ralstonia_eutropha <- add_metrics(df)
